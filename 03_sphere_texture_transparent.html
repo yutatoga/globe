@@ -8,7 +8,6 @@
     margin: 0;
     overflow: hidden;
   }
-
   </style>
 </head>
 <body>
@@ -27,21 +26,32 @@
 
     // camera
     camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
-    camera.position.z = 2;
+    camera.position.z =2;
 
     // renderer
     renderer = new THREE.WebGLRenderer();
+    renderer.setPixelRatio( window.devicePixelRatio );
     renderer.setSize( window.innerWidth, window.innerHeight );
     document.body.appendChild( renderer.domElement );
 
-    // sphere
-    var geometry = new THREE.SphereGeometry( 1, 10, 10 );
-    var material = new THREE.MeshBasicMaterial( {
-      color: 0xffffff,
-      wireframe: true
+    // earth
+    var loader = new THREE.TextureLoader();
+    loader.load('img/map.png', function (texture){
+      var geometry = new THREE.SphereGeometry( 1, 10, 10 );
+      var material = new THREE.MeshBasicMaterial( {
+        map:texture,
+        transparent:!0,
+        blending:THREE.AdditiveBlending,
+        side:THREE.BackSide,
+        fog:!0,
+        depthWrite:!1,
+        depthTest:!1,
+        opacity: .65,
+        side: THREE.DoubleSide
+      } );
+      sphere = new THREE.Mesh( geometry, material );
+      scene.add( sphere );
     } );
-    sphere = new THREE.Mesh( geometry, material );
-    scene.add( sphere );
   }
 
   function animate() {
