@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset=utf-8>
+  <title>globe</title>
+  <style>
+  body {
+    margin: 0;
+    overflow: hidden;
+  }
+  </style>
+</head>
+<body>
+  <script src="js/three.js"></script>
+  <script>
+
+  var scene, camera, renderer;
+  var group;
+  var sphere;
+
+  // initial value
+  // -sphere
+  var sphereRadius = 1;
+  var sphereWidthSegments = 10;
+  var sphereHeightSegments = 10;
+
+  // - group
+  var groupRotationY = 0.003;
+
+  // cameraTarget
+  var cameraFov = 75;
+  var cameraNear = 0.1;
+  var cameraFar = 1000;
+  var cameraPositionZ = 2.0;
+
+  init();
+  animate();
+
+  function init(){
+    // scene
+    scene = new THREE.Scene();
+    scene.background = new THREE.Color( 0x000000 );
+
+    group = new THREE.Group();
+    scene.add( group );
+
+    // camera
+    camera = new THREE.PerspectiveCamera(cameraFov, window.innerWidth / window.innerHeight, cameraNear, cameraFar);
+    camera.position.z = cameraPositionZ;
+
+    // renderer
+    renderer = new THREE.WebGLRenderer();
+    renderer.setPixelRatio( window.devicePixelRatio );
+    renderer.setSize( window.innerWidth, window.innerHeight );
+    document.body.appendChild( renderer.domElement );
+
+    // earth
+    var loader = new THREE.TextureLoader();
+    loader.load('img/map.png', function (texture){
+      var geometry = new THREE.SphereGeometry(sphereRadius, sphereWidthSegments, sphereHeightSegments);
+      var material = new THREE.MeshBasicMaterial( {
+        map:texture,
+        transparent: !0,
+        blending: THREE.AdditiveBlending,
+        side: THREE.BackSide,
+        fog: !0,
+        depthWrite: !1,
+        depthTest: !1,
+        opacity: 0.65,
+        side: THREE.DoubleSide
+      } );
+      sphere = new THREE.Mesh(geometry, material);
+      group.add( sphere );
+    } );
+
+    xhr = new XMLHttpRequest();
+    xhr.open('GET', 'json/population909500.json', true);
+    xhr.onreadystatechange = function() {
+      if (xhr.readyState === 4 && xhr.status === 200) {
+        var data = JSON.parse(xhr.responseText);
+        var populationYearId = 0; // 0 is 1990, 1 is 1995, and 2 is 2000.
+        for (var i = 0; i < data[populationYearId][1].length-2 ; i += 3 ) {
+          // trying to put a cube with the population value
+          var geometry = new THREE.BoxGeometry( 0.01, 0.01, 0.01 );
+          var material = new THREE.MeshBasicMaterial( {
+            color: 0x00ff00,
+            opacity: 0.65,
+            transparent: true
+          } );
+          var cube = new THREE.Mesh( geometry, material );
+
+          // i is latitude, i+1 is longitude, and i+2 is magnitude.
+          var populationPosition = latitudeLongitudeToVector3(data[populationYearId][1][i], data[populationYearId][1][i+1], sphereRadius, data[populationYearId][1][i+2]);
+          cube.position.set(populationPosition.x, populationPosition.y, populationPosition.z);
+
+          group.add( cube );
+        }
+      }
+    };
+    xhr.send( null );
+
+
+    test();
+
+  }
+
+  function test(){
+
+  }
+
+  function animate() {
+    requestAnimationFrame( animate );
+    group.rotation.y += groupRotationY;
+    renderer.render( scene, camera );
+  }
+
+  function latitudeLongitudeToVector3(latitude, longitude, radius, height) {
+    var phi = latitude * Math.PI / 180;
+    var theta = (longitude - 180) * Math.PI / 180;
+
+    var x = -(radius + height) * Math.cos(phi) * Math.cos(theta);
+    var y = (radius + height) * Math.sin(phi);
+    var z = (radius + height) * Math.cos(phi) * Math.sin(theta);
+
+    return new THREE.Vector3(x, y, z);
+  }
+
+  </script>
+</body>
+</html>
