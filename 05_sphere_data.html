@@ -80,8 +80,13 @@
         var data = JSON.parse(xhr.responseText);
         var populationYearId = 0; // 0 is 1990, 1 is 1995, and 2 is 2000.
         for (var i = 0; i < data[populationYearId][1].length-2 ; i += 3 ) {
+          // i is latitude, i+1 is longitude, and i+2 is magnitude.
+          var latitude = data[populationYearId][1][i];
+          var longitude = data[populationYearId][1][i+1];
+          var magnitude = data[populationYearId][1][i+2];
+
           // trying to put a cube with the population value
-          var geometry = new THREE.BoxGeometry( 0.01, 0.01, 0.01 );
+          var geometry = new THREE.BoxGeometry( 0.01, 0.01, 0.01 + 2 * magnitude );
           var material = new THREE.MeshBasicMaterial( {
             color: 0x00ff00,
             opacity: 0.65,
@@ -89,10 +94,9 @@
           } );
           var cube = new THREE.Mesh( geometry, material );
 
-          // i is latitude, i+1 is longitude, and i+2 is magnitude.
-          var populationPosition = latitudeLongitudeToVector3(data[populationYearId][1][i], data[populationYearId][1][i+1], sphereRadius, data[populationYearId][1][i+2]);
+          var populationPosition = latitudeLongitudeToVector3(latitude, longitude, sphereRadius, magnitude);
           cube.position.set(populationPosition.x, populationPosition.y, populationPosition.z);
-
+          cube.lookAt(new THREE.Vector3(0, 0, 0));
           group.add( cube );
         }
       }
