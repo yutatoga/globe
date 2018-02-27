@@ -63,7 +63,7 @@
 
     // earth
     var loader = new THREE.TextureLoader();
-    loader.load('img/map.png', function (texture){
+    loader.load('img/map_night.jpg', function (texture){
       var geometry = new THREE.SphereGeometry(sphereRadius, sphereWidthSegments, sphereHeightSegments);
       var material = new THREE.MeshBasicMaterial( {
         map:texture,
