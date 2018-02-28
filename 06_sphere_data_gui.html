@@ -23,8 +23,8 @@
     // sphere
     this.sphereScale = 1.0;
     this.sphereRadius = 1.0;
-    this.sphereWidthSegments = 10;
-    this.sphereHeightSegments = 10;
+    this.sphereWidthSegments = 32;
+    this.sphereHeightSegments = 32;
     this.sphereMaterialOpacity = 1.0;
 
     // group
@@ -35,6 +35,12 @@
     this.cameraNear = 0.1;
     this.cameraFar = 1000;
     this.cameraPositionZ = 2.0;
+
+    // data cube
+    this.dataCubeWidth = 0.01;
+    this.dataCubeHeight = 0.01;
+    this.dataCubeMagnitudeRatio = 1.0;
+    this.dataCubeOffset = 0.001;
 
     // data cubes
     this.dataCubesColor = "#6f9fd8";
@@ -47,7 +53,11 @@
 
   var sceneBackgroundColor;
   var sphereMesh, sphereGeometry, sphereMaterial, sphereTexture;
-  var dataCubesGeometry, dataCubesMesh, DataCubesMaterial;
+  var data;
+  var dataCubesGeometry, dataCubesMesh, dataCubesMaterial;
+
+  // debug
+  var stats;
 
   // initial value
   // -scene
@@ -56,26 +66,32 @@
   // -sphere
   var sphereScale = 1.0;
   var sphereRadius = 1.0;
-  var sphereWidthSegments = 10;
-  var sphereHeightSegments = 10;
+  var sphereWidthSegments = 32;
+  var sphereHeightSegments = 32;
   var sphereMaterialOpacity = 1.0;
 
   // - group
   var groupRotationY = 0.003;
 
-  // camera
+  // - camera
   var cameraFov = 75;
   var cameraNear = 0.1;
   var cameraFar = 1000;
   var cameraPositionZ = 2.0;
 
-  // data cubes
+  // - data
+  var populationYearId = 0; // 0 is 1990, 1 is 1995, and 2 is 2000.
+
+  // - data cube
+  var dataCubeWidth = 0.01;
+  var dataCubeHeight = 0.01;
+  var dataCubeMagnitudeRatio = 1.0;
+  var dataCubeOffset = 0.001;
+
+  // - data cubes
   var dataCubesColor = "#6f9fd8";
   var dataCubesOpacity = 0.65;
   var dataCubesScale = 1.0;
-
-  // debug
-  var stats;
 
   init();
   debug();
@@ -112,8 +128,8 @@
       };
 
       guiFolderSphere.add(settings, 'sphereRadius', 0.1, 2).onChange(guiFolderSphereChanged);
-      guiFolderSphere.add(settings, 'sphereWidthSegments', 3, 32).onChange(guiFolderSphereChanged);
-      guiFolderSphere.add(settings, 'sphereHeightSegments', 2, 32).onChange(guiFolderSphereChanged);
+      guiFolderSphere.add(settings, 'sphereWidthSegments', 3, 64).onChange(guiFolderSphereChanged);
+      guiFolderSphere.add(settings, 'sphereHeightSegments', 2, 64).onChange(guiFolderSphereChanged);
       guiFolderSphere.add(settings, 'sphereMaterialOpacity', 0, 1).onChange(guiFolderSphereChanged);
       guiFolderSphere.open();
 
@@ -176,18 +192,64 @@
         camera.updateProjectionMatrix();
       };
 
-      // data dataCubesMesh
+      // data cube
+      var guiFolderDataCube = gui.addFolder('dataCube');
+      guiFolderDataCube.add(settings, 'dataCubeWidth', 0.001, 0.01).onFinishChange(guiFolderDataCubeChanged);
+      guiFolderDataCube.add(settings, 'dataCubeHeight', 0.001, 0.01).onFinishChange(guiFolderDataCubeChanged);
+      guiFolderDataCube.add(settings, 'dataCubeMagnitudeRatio', 0, 5).onFinishChange(guiFolderDataCubeChanged);
+      guiFolderDataCube.add(settings, 'dataCubeOffset', -0.3, 0.3).onFinishChange(guiFolderDataCubeChanged);
+      guiFolderDataCube.open();
+
+      function guiFolderDataCubeChanged(){
+        dataCubeWidth = settings.dataCubeWidth;
+        dataCubeHeight = settings.dataCubeHeight;
+        dataCubeMagnitudeRatio = settings.dataCubeMagnitudeRatio;
+        dataCubeOffset = settings.dataCubeOffset;
+
+        // recreate data cubes mesh with new data cube settings
+        group.remove(dataCubesMesh);
+        dataCubesGeometry.dispose();
+
+        dataCubesGeometry = new THREE.Geometry();
+        for (var i = 0; i < data[populationYearId][1].length-2 ; i += 3) {
+          // i is latitude, i+1 is longitude, and i+2 is magnitude.
+          var latitude = data[populationYearId][1][i];
+          var longitude = data[populationYearId][1][i+1];
+          var magnitude = data[populationYearId][1][i+2];
+
+          // trying to put a cube with the population value
+          var dataCubeMagnitude = magnitude * dataCubeMagnitudeRatio;
+          dataCubeMagnitude = Math.max(dataCubeMagnitude, Number.MIN_VALUE); // avoid replaced 0 with 1 by the constructor of BoxGeometry
+          var geometry = new THREE.BoxGeometry(dataCubeWidth, dataCubeHeight, dataCubeMagnitude);
+          var cube = new THREE.Mesh(geometry);
+
+          // set cube's position with json data
+          var populationPosition = latitudeLongitudeToVector3(latitude, longitude, sphereRadius, dataCubeMagnitude/2.0 + dataCubeOffset);
+          cube.position.set(populationPosition.x, populationPosition.y, populationPosition.z);
+          cube.lookAt(new THREE.Vector3(0, 0, 0));
+
+          // merge cube into dataCubesGeometry
+          dataCubesGeometry.mergeMesh(cube);
+        }
+        dataCubesMesh = new THREE.Mesh(dataCubesGeometry, dataCubesMaterial);
+        dataCubesMesh.scale.set(dataCubesScale, dataCubesScale, dataCubesScale);
+        group.add(dataCubesMesh);
+      };
+
+      // data cubes
       var guiFolderDataCubes = gui.addFolder('dataCubes');
       // - color for data cubes
       guiFolderDataCubes.addColor(settings, 'dataCubesColor').onChange(guiFolderDataCubesColorChanged);
       function guiFolderDataCubesColorChanged(){
         dataCubesColor = settings.dataCubesColor;
+        dataCubesMaterial.color.setStyle(settings.dataCubesColor);
         dataCubesMesh.material.color.setStyle(settings.dataCubesColor);
       };
       // - opacity for data cubes
       guiFolderDataCubes.add(settings, 'dataCubesOpacity', 0, 1.0).onChange(guiFolderDataCubesOpacityChanged);
       function guiFolderDataCubesOpacityChanged(){
         dataCubesOpacity = settings.dataCubesOpacity;
+        dataCubesMaterial.opacity = settings.dataCubesOpacity;
         dataCubesMesh.material.opacity = settings.dataCubesOpacity;
       };
       // - scale for data cuebs
@@ -248,8 +310,7 @@
     xhr.open('GET', 'json/population909500.json', true);
     xhr.onreadystatechange = function() {
       if (xhr.readyState === 4 && xhr.status === 200) {
-        var data = JSON.parse(xhr.responseText);
-        var populationYearId = 0; // 0 is 1990, 1 is 1995, and 2 is 2000.
+        data = JSON.parse(xhr.responseText);
         dataCubesGeometry = new THREE.Geometry();
         for (var i = 0; i < data[populationYearId][1].length-2 ; i += 3) {
           // i is latitude, i+1 is longitude, and i+2 is magnitude.
@@ -258,11 +319,13 @@
           var magnitude = data[populationYearId][1][i+2];
 
           // trying to put a cube with the population value
-          var geometry = new THREE.BoxGeometry(0.01, 0.01, 0.01 + 2 * magnitude);
+          var dataCubeMagnitude = magnitude * dataCubeMagnitudeRatio;
+          dataCubeMagnitude = Math.max(dataCubeMagnitude, Number.MIN_VALUE); // avoid replaced 0 with 1 by the constructor of BoxGeometry
+          var geometry = new THREE.BoxGeometry(dataCubeWidth, dataCubeHeight, dataCubeMagnitude);
           var cube = new THREE.Mesh(geometry);
 
           // set cube's position with json data
-          var populationPosition = latitudeLongitudeToVector3(latitude, longitude, sphereRadius, magnitude);
+          var populationPosition = latitudeLongitudeToVector3(latitude, longitude, sphereRadius, dataCubeMagnitude/2.0 + dataCubeOffset);
           cube.position.set(populationPosition.x, populationPosition.y, populationPosition.z);
           cube.lookAt(new THREE.Vector3(0, 0, 0));
 
@@ -270,14 +333,14 @@
           dataCubesGeometry.mergeMesh(cube);
         }
 
-        DataCubesMaterial = new THREE.MeshBasicMaterial( {
+        dataCubesMaterial = new THREE.MeshBasicMaterial( {
           transparent: true,
           opacity: dataCubesOpacity,
           blending: THREE.AdditiveBlending,
           color: dataCubesColor
         } );
 
-        dataCubesMesh = new THREE.Mesh(dataCubesGeometry, DataCubesMaterial);
+        dataCubesMesh = new THREE.Mesh(dataCubesGeometry, dataCubesMaterial);
         dataCubesMesh.scale.set(dataCubesScale, dataCubesScale, dataCubesScale);
         group.add(dataCubesMesh);
       }
@@ -299,6 +362,8 @@
     requestAnimationFrame(animate);
   }
 
+  // radius: the radius of the globe
+  // height: the offset above the globe
   function latitudeLongitudeToVector3(latitude, longitude, radius, height) {
     var phi = latitude * Math.PI / 180;
     var theta = (longitude - 180) * Math.PI / 180;
