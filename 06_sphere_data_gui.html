@@ -363,14 +363,14 @@
   }
 
   // radius: the radius of the globe
-  // height: the offset above the globe
-  function latitudeLongitudeToVector3(latitude, longitude, radius, height) {
+  // offset: the offset above the globe
+  function latitudeLongitudeToVector3(latitude, longitude, radius, offset) {
     var phi = latitude * Math.PI / 180;
     var theta = (longitude - 180) * Math.PI / 180;
 
-    var x = -(radius + height) * Math.cos(phi) * Math.cos(theta);
-    var y = (radius + height) * Math.sin(phi);
-    var z = (radius + height) * Math.cos(phi) * Math.sin(theta);
+    var x = -(radius + offset) * Math.cos(phi) * Math.cos(theta);
+    var y = (radius + offset) * Math.sin(phi);
+    var z = (radius + offset) * Math.cos(phi) * Math.sin(theta);
 
     return new THREE.Vector3(x, y, z);
   }
