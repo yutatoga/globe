@@ -18,7 +18,8 @@
 
   var scene, camera, renderer;
   var cubicBezierCurve, cubicBezierCurveMaterial, cubicBezierCurveObject;
-
+  var quadraticBezierCurve1, quadraticBezierCurve1Material, quadraticBezierCurve1Object;
+  var quadraticBezierCurve2, quadraticBezierCurve2Material, quadraticBezierCurve2Object;
   var planeMesh0, planeMesh1, planeMesh2, planeMesh3;
   var lineMaterial, lineGeometryBetweenV2V3, lineGeometryBetweenV2V3;
 
@@ -58,23 +59,47 @@
     gui.add(settings, 'v3Y', -1, 1).onChange(updateCurve);
 
     function updateCurve(){
+      // cubic
       scene.remove(cubicBezierCurveObject);
-      // avoid memory leak
-      cubicBezierCurveObject.material.dispose();
-      cubicBezierCurveObject.geometry.dispose();
+      cubicBezierCurveObject.material.dispose(); // avoid memory leak
+      cubicBezierCurveObject.geometry.dispose(); // avoid memory leak
+      // quadratic 1
+      scene.remove(quadraticBezierCurve1Object);
+      quadraticBezierCurve1Object.material.dispose(); // avoid memory leak
+      quadraticBezierCurve1Object.geometry.dispose(); // avoid memory leak
+      // quadratic 2
+      scene.remove(quadraticBezierCurve2Object);
+      quadraticBezierCurve2Object.material.dispose(); // avoid memory leak
+      quadraticBezierCurve2Object.geometry.dispose(); // avoid memory leak
 
       // update curve
+      // - cubic
       cubicBezierCurve.v0.set(settings.v0X, settings.v0Y);
       cubicBezierCurve.v1.set(settings.v1X, settings.v1Y);
       cubicBezierCurve.v2.set(settings.v2X, settings.v2Y);
       cubicBezierCurve.v3.set(settings.v3X, settings.v3Y);
-
-      var points = cubicBezierCurve.getPoints( 50 );
-      var cubicBezierCurveGeometry = new THREE.BufferGeometry().setFromPoints( points );
-
-
+      var cubicBezierCurvePoints = cubicBezierCurve.getPoints( 50 );
+      var cubicBezierCurveGeometry = new THREE.BufferGeometry().setFromPoints( cubicBezierCurvePoints );
       cubicBezierCurveObject = new THREE.Line( cubicBezierCurveGeometry, cubicBezierCurveMaterial );
       scene.add(cubicBezierCurveObject);
+
+      // - quadratic 1
+      quadraticBezierCurve1.v0.set(settings.v0X, settings.v0Y);
+      quadraticBezierCurve1.v1.set(settings.v1X, settings.v1Y);
+      quadraticBezierCurve1.v2.set(settings.v3X, settings.v3Y);
+      var quadraticBezierCurve1Points = quadraticBezierCurve1.getPoints( 50 );
+      var quadraticBezierCurve1Geometry = new THREE.BufferGeometry().setFromPoints ( quadraticBezierCurve1Points );
+      quadraticBezierCurve1Object = new THREE.Line( quadraticBezierCurve1Geometry, quadraticBezierCurve1Material );
+      scene.add(quadraticBezierCurve1Object);
+
+      // - quadratic 2
+      quadraticBezierCurve2.v0.set(settings.v0X, settings.v0Y);
+      quadraticBezierCurve2.v1.set(settings.v2X, settings.v2Y);
+      quadraticBezierCurve2.v2.set(settings.v3X, settings.v3Y);
+      var quadraticBezierCurve2Points = quadraticBezierCurve2.getPoints( 50 );
+      var quadraticBezierCurve2Geometry = new THREE.BufferGeometry().setFromPoints ( quadraticBezierCurve2Points );
+      quadraticBezierCurve2Object = new THREE.Line( quadraticBezierCurve2Geometry, quadraticBezierCurve2Material );
+      scene.add(quadraticBezierCurve2Object);
 
       // update planes
       planeMesh0.position.set(settings.v0X, settings.v0Y, 0);
@@ -129,18 +154,42 @@
     	new THREE.Vector2( settings.v2X, settings.v2Y ),  // The second control point
     	new THREE.Vector2( settings.v3X, settings.v3Y ),  // The ending point
     );
-    var points = cubicBezierCurve.getPoints( 50 );
-    var cubicBezierCurveGeometry = new THREE.BufferGeometry().setFromPoints( points );
+    var cubicBezierCurvePoints = cubicBezierCurve.getPoints( 50 );
+    var cubicBezierCurveGeometry = new THREE.BufferGeometry().setFromPoints( cubicBezierCurvePoints );
     cubicBezierCurveMaterial = new THREE.LineBasicMaterial( { color : 0xff0000 } );
     // Create the final object to add to the scene
     cubicBezierCurveObject = new THREE.Line( cubicBezierCurveGeometry, cubicBezierCurveMaterial );
     scene.add( cubicBezierCurveObject );
 
+    // - quadratic 1
+    quadraticBezierCurve1 = new THREE.QuadraticBezierCurve(
+      new THREE.Vector2( settings.v0X, settings.v0Y),
+      new THREE.Vector2( settings.v1X, settings.v1Y),
+      new THREE.Vector2( settings.v3X, settings.v3Y)
+    );
+    var quadraticBezierCurve1Points = quadraticBezierCurve1.getPoints( 50 );
+    var quadraticBezierCurve1Geometry = new THREE.BufferGeometry().setFromPoints( quadraticBezierCurve1Points );
+    quadraticBezierCurve1Material = new THREE.LineBasicMaterial( { color : 0x009900 } );
+    quadraticBezierCurve1Object = new THREE.Line( quadraticBezierCurve1Geometry, quadraticBezierCurve1Material );
+    scene.add( quadraticBezierCurve1Object );
+
+    // - quadratic 2
+    quadraticBezierCurve2 = new THREE.QuadraticBezierCurve(
+      new THREE.Vector2( settings.v0X, settings.v0Y),
+      new THREE.Vector2( settings.v2X, settings.v2Y),
+      new THREE.Vector2( settings.v3X, settings.v3Y)
+    );
+    var quadraticBezierCurve2Points = quadraticBezierCurve2.getPoints( 50 );
+    var quadraticBezierCurve2Geometry = new THREE.BufferGeometry().setFromPoints( quadraticBezierCurve2Points );
+    quadraticBezierCurve2Material = new THREE.LineBasicMaterial( { color : 0x009999 } );
+    quadraticBezierCurve2Object = new THREE.Line( quadraticBezierCurve2Geometry, quadraticBezierCurve2Material );
+    scene.add( quadraticBezierCurve2Object );
+
     // planese
     var planeMaterialV0 = new THREE.MeshBasicMaterial( {color: 0x00ff00, transparent: true, opacity: 0.75} );
     var planeMaterialV1 = new THREE.MeshBasicMaterial( {color: 0x009900, transparent: true, opacity: 0.75} );
-    var planeMaterialV2 = new THREE.MeshBasicMaterial( {color: 0x000099, transparent: true, opacity: 0.75} );
-    var planeMaterialV3 = new THREE.MeshBasicMaterial( {color: 0x0000ff, transparent: true, opacity: 0.75} );
+    var planeMaterialV2 = new THREE.MeshBasicMaterial( {color: 0x009999, transparent: true, opacity: 0.75} );
+    var planeMaterialV3 = new THREE.MeshBasicMaterial( {color: 0x00ffff, transparent: true, opacity: 0.75} );
     var planeGeometry = new THREE.PlaneGeometry( 0.05, 0.05 );
 
     var planeMesh0 = new THREE.Mesh( planeGeometry, planeMaterialV0 );
