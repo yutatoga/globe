@@ -17,7 +17,8 @@
   <script>
 
   var scene, camera, renderer;
-  var curve, materialCurve, curveObject;
+  var cubicBezierCurve, cubicBezierCurveMaterial, cubicBezierCurveObject;
+
   var planeMesh0, planeMesh1, planeMesh2, planeMesh3;
   var lineMaterial, lineGeometryBetweenV2V3, lineGeometryBetweenV2V3;
 
@@ -57,23 +58,23 @@
     gui.add(settings, 'v3Y', -1, 1).onChange(updateCurve);
 
     function updateCurve(){
-      scene.remove(curveObject);
+      scene.remove(cubicBezierCurveObject);
       // avoid memory leak
-      curveObject.material.dispose();
-      curveObject.geometry.dispose();
+      cubicBezierCurveObject.material.dispose();
+      cubicBezierCurveObject.geometry.dispose();
 
       // update curve
-      curve.v0.set(settings.v0X, settings.v0Y);
-      curve.v1.set(settings.v1X, settings.v1Y);
-      curve.v2.set(settings.v2X, settings.v2Y);
-      curve.v3.set(settings.v3X, settings.v3Y);
+      cubicBezierCurve.v0.set(settings.v0X, settings.v0Y);
+      cubicBezierCurve.v1.set(settings.v1X, settings.v1Y);
+      cubicBezierCurve.v2.set(settings.v2X, settings.v2Y);
+      cubicBezierCurve.v3.set(settings.v3X, settings.v3Y);
 
-      var points = curve.getPoints( 50 );
-      var geometryCurve = new THREE.BufferGeometry().setFromPoints( points );
+      var points = cubicBezierCurve.getPoints( 50 );
+      var cubicBezierCurveGeometry = new THREE.BufferGeometry().setFromPoints( points );
 
 
-      curveObject = new THREE.Line( geometryCurve, materialCurve );
-      scene.add(curveObject);
+      cubicBezierCurveObject = new THREE.Line( cubicBezierCurveGeometry, cubicBezierCurveMaterial );
+      scene.add(cubicBezierCurveObject);
 
       // update planes
       planeMesh0.position.set(settings.v0X, settings.v0Y, 0);
@@ -121,18 +122,19 @@
     scene.add( plane );
 
     // curve
-    curve = new THREE.CubicBezierCurve(
-      new THREE.Vector2( settings.v0X, settings.v0Y ),   // The starting point
+    // - cubic
+    cubicBezierCurve = new THREE.CubicBezierCurve(
+      new THREE.Vector2( settings.v0X, settings.v0Y ),  // The starting point
     	new THREE.Vector2( settings.v1X, settings.v1Y ),  // The first control point.
-    	new THREE.Vector2( settings.v2X, settings.v2Y ),    // The second control point
-    	new THREE.Vector2( settings.v3X, settings.v3Y ),   // The ending point
+    	new THREE.Vector2( settings.v2X, settings.v2Y ),  // The second control point
+    	new THREE.Vector2( settings.v3X, settings.v3Y ),  // The ending point
     );
-    var points = curve.getPoints( 50 );
-    var geometryCurve = new THREE.BufferGeometry().setFromPoints( points );
-    materialCurve = new THREE.LineBasicMaterial( { color : 0xff0000 } );
+    var points = cubicBezierCurve.getPoints( 50 );
+    var cubicBezierCurveGeometry = new THREE.BufferGeometry().setFromPoints( points );
+    cubicBezierCurveMaterial = new THREE.LineBasicMaterial( { color : 0xff0000 } );
     // Create the final object to add to the scene
-    curveObject = new THREE.Line( geometryCurve, materialCurve );
-    scene.add( curveObject );
+    cubicBezierCurveObject = new THREE.Line( cubicBezierCurveGeometry, cubicBezierCurveMaterial );
+    scene.add( cubicBezierCurveObject );
 
     // planese
     var planeMaterialV0 = new THREE.MeshBasicMaterial( {color: 0x00ff00, transparent: true, opacity: 0.75} );
