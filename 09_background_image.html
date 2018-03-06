@@ -11,7 +11,7 @@
   </style>
 </head>
 <body>
-  <script src="js/three.js"></script>
+  <script type="text/javascript" src="js/three.js"></script>
   <script>
 
   var scene, camera, renderer;
@@ -27,14 +27,14 @@
     scene.add(group);
 
     // camera
-    camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
+    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
     camera.position.z =2;
 
     // renderer
     renderer = new THREE.WebGLRenderer();
-    renderer.setPixelRatio( window.devicePixelRatio );
-    renderer.setSize( window.innerWidth, window.innerHeight );
-    document.body.appendChild( renderer.domElement );
+    renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
 
     // background image
     let loaderBackgroundImage = new THREE.TextureLoader();
@@ -74,9 +74,9 @@
   }
 
   function animate() {
-  	requestAnimationFrame( animate );
+  	requestAnimationFrame(animate);
     group.rotation.y += 0.001;
-  	renderer.render( scene, camera );
+  	renderer.render(scene, camera);
   }
 
   </script>

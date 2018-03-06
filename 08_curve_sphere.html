@@ -99,7 +99,7 @@
       wireframe: true
     } );
     sphere = new THREE.Mesh(geometry, material);
-    scene.add( sphere );
+    scene.add(sphere);
 
     function latitudeLongitudeToVector3(latitude, longitude, radius, offset) {
       var phi = latitude * Math.PI / 180;
@@ -169,9 +169,9 @@
   }
 
   function animate() {
-  	requestAnimationFrame( animate );
+  	requestAnimationFrame(animate);
     scene.rotation.y += settings.sceneRotationY;
-  	renderer.render( scene, camera );
+  	renderer.render(scene, camera);
   }
 
   </script>

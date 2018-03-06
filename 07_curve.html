@@ -12,8 +12,8 @@
   </style>
 </head>
 <body>
-  <script src="js/three.js"></script>
-  <script src="js/dat.gui.min.js"></script>
+  <script type="text/javascript" src="js/three.js"></script>
+  <script type="text/javascript" src="js/dat.gui.min.js"></script>
   <script>
 
   var scene, camera, renderer;
@@ -78,27 +78,27 @@
       cubicBezierCurve.v1.set(settings.v1X, settings.v1Y);
       cubicBezierCurve.v2.set(settings.v2X, settings.v2Y);
       cubicBezierCurve.v3.set(settings.v3X, settings.v3Y);
-      var cubicBezierCurvePoints = cubicBezierCurve.getPoints( 50 );
-      var cubicBezierCurveGeometry = new THREE.BufferGeometry().setFromPoints( cubicBezierCurvePoints );
-      cubicBezierCurveObject = new THREE.Line( cubicBezierCurveGeometry, cubicBezierCurveMaterial );
+      var cubicBezierCurvePoints = cubicBezierCurve.getPoints(50);
+      var cubicBezierCurveGeometry = new THREE.BufferGeometry().setFromPoints(cubicBezierCurvePoints);
+      cubicBezierCurveObject = new THREE.Line(cubicBezierCurveGeometry, cubicBezierCurveMaterial);
       scene.add(cubicBezierCurveObject);
 
       // - quadratic 1
       quadraticBezierCurve1.v0.set(settings.v0X, settings.v0Y);
       quadraticBezierCurve1.v1.set(settings.v1X, settings.v1Y);
       quadraticBezierCurve1.v2.set(settings.v3X, settings.v3Y);
-      var quadraticBezierCurve1Points = quadraticBezierCurve1.getPoints( 50 );
-      var quadraticBezierCurve1Geometry = new THREE.BufferGeometry().setFromPoints ( quadraticBezierCurve1Points );
-      quadraticBezierCurve1Object = new THREE.Line( quadraticBezierCurve1Geometry, quadraticBezierCurve1Material );
+      var quadraticBezierCurve1Points = quadraticBezierCurve1.getPoints(50);
+      var quadraticBezierCurve1Geometry = new THREE.BufferGeometry().setFromPoints (quadraticBezierCurve1Points);
+      quadraticBezierCurve1Object = new THREE.Line(quadraticBezierCurve1Geometry, quadraticBezierCurve1Material);
       scene.add(quadraticBezierCurve1Object);
 
       // - quadratic 2
       quadraticBezierCurve2.v0.set(settings.v0X, settings.v0Y);
       quadraticBezierCurve2.v1.set(settings.v2X, settings.v2Y);
       quadraticBezierCurve2.v2.set(settings.v3X, settings.v3Y);
-      var quadraticBezierCurve2Points = quadraticBezierCurve2.getPoints( 50 );
-      var quadraticBezierCurve2Geometry = new THREE.BufferGeometry().setFromPoints ( quadraticBezierCurve2Points );
-      quadraticBezierCurve2Object = new THREE.Line( quadraticBezierCurve2Geometry, quadraticBezierCurve2Material );
+      var quadraticBezierCurve2Points = quadraticBezierCurve2.getPoints(50);
+      var quadraticBezierCurve2Geometry = new THREE.BufferGeometry().setFromPoints (quadraticBezierCurve2Points);
+      quadraticBezierCurve2Object = new THREE.Line(quadraticBezierCurve2Geometry, quadraticBezierCurve2Material);
       scene.add(quadraticBezierCurve2Object);
 
       // update planes
@@ -128,83 +128,83 @@
     scene = new THREE.Scene();
 
     // camera
-    camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
+    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
     camera.position.z = 2;
 
     // renderer
     renderer = new THREE.WebGLRenderer();
-    renderer.setSize( window.innerWidth, window.innerHeight );
-    document.body.appendChild( renderer.domElement );
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
 
     // plane for the ruler
-    var geometry = new THREE.PlaneGeometry( 2, 2 );
+    var geometry = new THREE.PlaneGeometry(2, 2);
     var material = new THREE.MeshBasicMaterial( {
       color: 0xffff00, // yellow
       side: THREE.DoubleSide,
       wireframe: true
     } );
-    var plane = new THREE.Mesh( geometry, material );
-    scene.add( plane );
+    var plane = new THREE.Mesh(geometry, material);
+    scene.add(plane);
 
     // curve
     // - cubic
     cubicBezierCurve = new THREE.CubicBezierCurve(
-      new THREE.Vector2( settings.v0X, settings.v0Y ),  // The starting point
-    	new THREE.Vector2( settings.v1X, settings.v1Y ),  // The first control point.
-    	new THREE.Vector2( settings.v2X, settings.v2Y ),  // The second control point
-    	new THREE.Vector2( settings.v3X, settings.v3Y ),  // The ending point
+      new THREE.Vector2(settings.v0X, settings.v0Y),  // The starting point
+    	new THREE.Vector2(settings.v1X, settings.v1Y),  // The first control point.
+    	new THREE.Vector2(settings.v2X, settings.v2Y),  // The second control point
+    	new THREE.Vector2(settings.v3X, settings.v3Y),  // The ending point
     );
-    var cubicBezierCurvePoints = cubicBezierCurve.getPoints( 50 );
-    var cubicBezierCurveGeometry = new THREE.BufferGeometry().setFromPoints( cubicBezierCurvePoints );
+    var cubicBezierCurvePoints = cubicBezierCurve.getPoints(50);
+    var cubicBezierCurveGeometry = new THREE.BufferGeometry().setFromPoints(cubicBezierCurvePoints);
     cubicBezierCurveMaterial = new THREE.LineBasicMaterial( { color : 0xff0000 } );
     // Create the final object to add to the scene
-    cubicBezierCurveObject = new THREE.Line( cubicBezierCurveGeometry, cubicBezierCurveMaterial );
-    scene.add( cubicBezierCurveObject );
+    cubicBezierCurveObject = new THREE.Line(cubicBezierCurveGeometry, cubicBezierCurveMaterial);
+    scene.add(cubicBezierCurveObject);
 
     // - quadratic 1
     quadraticBezierCurve1 = new THREE.QuadraticBezierCurve(
-      new THREE.Vector2( settings.v0X, settings.v0Y),
-      new THREE.Vector2( settings.v1X, settings.v1Y),
-      new THREE.Vector2( settings.v3X, settings.v3Y)
+      new THREE.Vector2(settings.v0X, settings.v0Y),
+      new THREE.Vector2(settings.v1X, settings.v1Y),
+      new THREE.Vector2(settings.v3X, settings.v3Y)
     );
-    var quadraticBezierCurve1Points = quadraticBezierCurve1.getPoints( 50 );
-    var quadraticBezierCurve1Geometry = new THREE.BufferGeometry().setFromPoints( quadraticBezierCurve1Points );
+    var quadraticBezierCurve1Points = quadraticBezierCurve1.getPoints(50);
+    var quadraticBezierCurve1Geometry = new THREE.BufferGeometry().setFromPoints(quadraticBezierCurve1Points);
     quadraticBezierCurve1Material = new THREE.LineBasicMaterial( { color : 0x009900 } );
-    quadraticBezierCurve1Object = new THREE.Line( quadraticBezierCurve1Geometry, quadraticBezierCurve1Material );
-    scene.add( quadraticBezierCurve1Object );
+    quadraticBezierCurve1Object = new THREE.Line(quadraticBezierCurve1Geometry, quadraticBezierCurve1Material);
+    scene.add(quadraticBezierCurve1Object);
 
     // - quadratic 2
     quadraticBezierCurve2 = new THREE.QuadraticBezierCurve(
-      new THREE.Vector2( settings.v0X, settings.v0Y),
-      new THREE.Vector2( settings.v2X, settings.v2Y),
-      new THREE.Vector2( settings.v3X, settings.v3Y)
+      new THREE.Vector2(settings.v0X, settings.v0Y),
+      new THREE.Vector2(settings.v2X, settings.v2Y),
+      new THREE.Vector2(settings.v3X, settings.v3Y)
     );
-    var quadraticBezierCurve2Points = quadraticBezierCurve2.getPoints( 50 );
-    var quadraticBezierCurve2Geometry = new THREE.BufferGeometry().setFromPoints( quadraticBezierCurve2Points );
+    var quadraticBezierCurve2Points = quadraticBezierCurve2.getPoints(50);
+    var quadraticBezierCurve2Geometry = new THREE.BufferGeometry().setFromPoints(quadraticBezierCurve2Points);
     quadraticBezierCurve2Material = new THREE.LineBasicMaterial( { color : 0x009999 } );
     quadraticBezierCurve2Object = new THREE.Line( quadraticBezierCurve2Geometry, quadraticBezierCurve2Material );
-    scene.add( quadraticBezierCurve2Object );
+    scene.add(quadraticBezierCurve2Object);
 
     // planese
     var planeMaterialV0 = new THREE.MeshBasicMaterial( {color: 0x00ff00, transparent: true, opacity: 0.75} );
     var planeMaterialV1 = new THREE.MeshBasicMaterial( {color: 0x009900, transparent: true, opacity: 0.75} );
     var planeMaterialV2 = new THREE.MeshBasicMaterial( {color: 0x009999, transparent: true, opacity: 0.75} );
     var planeMaterialV3 = new THREE.MeshBasicMaterial( {color: 0x00ffff, transparent: true, opacity: 0.75} );
-    var planeGeometry = new THREE.PlaneGeometry( 0.05, 0.05 );
+    var planeGeometry = new THREE.PlaneGeometry(0.05, 0.05);
 
-    var planeMesh0 = new THREE.Mesh( planeGeometry, planeMaterialV0 );
+    var planeMesh0 = new THREE.Mesh(planeGeometry, planeMaterialV0);
     planeMesh0.position.set(settings.v0X, settings.v0Y, 0);
     scene.add(planeMesh0);
 
-    var planeMesh1 = new THREE.Mesh( planeGeometry, planeMaterialV1 );
+    var planeMesh1 = new THREE.Mesh(planeGeometry, planeMaterialV1);
     planeMesh1.position.set(settings.v1X, settings.v1Y, 0);
     scene.add(planeMesh1);
 
-    var planeMesh2 = new THREE.Mesh( planeGeometry, planeMaterialV2 );
+    var planeMesh2 = new THREE.Mesh(planeGeometry, planeMaterialV2);
     planeMesh2.position.set(settings.v2X, settings.v2Y, 0);
     scene.add(planeMesh2);
 
-    var planeMesh3 = new THREE.Mesh( planeGeometry, planeMaterialV3 );
+    var planeMesh3 = new THREE.Mesh(planeGeometry, planeMaterialV3);
     planeMesh3.position.set(settings.v3X, settings.v3Y, 0);
     scene.add(planeMesh3);
 
@@ -217,8 +217,8 @@
       new THREE.Vector3(settings.v0X, settings.v0Y, 0),
       new THREE.Vector3(settings.v1X, settings.v1Y, 0)
     );
-    var lineBetweenV0V1 = new THREE.Line( lineGeometryBetweenV0V1, lineMaterial );
-    scene.add( lineBetweenV0V1 );
+    var lineBetweenV0V1 = new THREE.Line(lineGeometryBetweenV0V1, lineMaterial);
+    scene.add(lineBetweenV0V1);
 
     // line between v2 and v3
     lineGeometryBetweenV2V3 = new THREE.Geometry();
@@ -226,14 +226,14 @@
       new THREE.Vector3(settings.v2X, settings.v2Y, 0),
       new THREE.Vector3(settings.v3X, settings.v3Y, 0)
     );
-    var lineBetweenV2V3 = new THREE.Line( lineGeometryBetweenV2V3, lineMaterial );
+    var lineBetweenV2V3 = new THREE.Line(lineGeometryBetweenV2V3, lineMaterial);
     scene.add(lineBetweenV2V3);
   }
 
   function animate() {
-  	requestAnimationFrame( animate );
+  	requestAnimationFrame(animate);
     // scene.rotation.y += 0.01;
-  	renderer.render( scene, camera );
+  	renderer.render(scene, camera);
   }
 
   </script>
