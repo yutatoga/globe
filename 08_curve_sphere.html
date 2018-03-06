@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset=utf-8>
+  <title>globe</title>
+  <style>
+  body {
+    margin: 0;
+    overflow: hidden;
+  }
+
+  </style>
+</head>
+<body>
+  <script type="text/javascript" src="js/three.js"></script>
+  <script type="text/javascript" src="js/dat.gui.min.js"></script>
+  <script>
+
+
+  var Settings = function(){
+    // curve
+    this.middleScalarRatio = 0.7;
+    this.distanceBetweenStartAndEndHalfRatio = 0.25;
+    this.startLatitude = 0.0;
+    this.startLongitude = -90.0;
+    this.endLatitude = 34.055362;
+    this.endLongitude = -118.249846;
+    this.curveLinewidth = 1.0; // currently not working on Chrome
+
+    // scene
+    this.sceneRotationY = 0.001;
+  };
+
+  var scene, camera, renderer;
+  var sphere;
+  var connectionCurveObject;
+  var settings;
+
+  init();
+  animate();
+
+  function init(){
+    // gui
+    settings = new Settings();
+    var gui = new dat.GUI();
+    // - curve
+    var guiFolderCurve = gui.addFolder('Curve');
+    guiFolderCurve.add(settings, 'middleScalarRatio', 0.1, 1.0).onChange(updateCurve);
+    guiFolderCurve.add(settings, 'distanceBetweenStartAndEndHalfRatio', 0.01, 1.0).onChange(updateCurve);
+    guiFolderCurve.add(settings, 'startLatitude', -90, 90).onChange(updateCurve);
+    guiFolderCurve.add(settings, 'startLongitude', -180, 180).onChange(updateCurve);
+    guiFolderCurve.add(settings, 'endLatitude', -90, 90).onChange(updateCurve);
+    guiFolderCurve.add(settings, 'endLongitude', -180, 180).onChange(updateCurve);
+    guiFolderCurve.add(settings, 'curveLinewidth', 0.1, 10).onChange(updateCurve);
+    guiFolderCurve.open();
+    // - scene
+    var guiFolderScene = gui.addFolder('Scene');
+    guiFolderScene.add(settings, 'sceneRotationY', -0.01, 0.01);
+    guiFolderScene.open();
+
+    function updateCurve(){
+      scene.remove(connectionCurveObject);
+      connectionCurveObject.material.dispose();
+      connectionCurveObject.geometry.dispose();
+
+      let start = latitudeLongitudeToVector3(settings.startLatitude, settings.startLongitude, radius, 0);
+      let end = latitudeLongitudeToVector3(settings.endLatitude, settings.endLongitude, radius, 0);
+
+      let connectionCurveGeometry = makeConnectionCurveGeometry(start, end, settings.middleScalarRatio, settings.distanceBetweenStartAndEndHalfRatio);
+      let connectionCurveMaterial = new THREE.LineBasicMaterial( {
+        color : 0xff0000,
+        linewidth: settings.curveLinewidth
+      } );
+
+      connectionCurveObject = new THREE.Line(connectionCurveGeometry, connectionCurveMaterial);
+      scene.add(connectionCurveObject);
+    };
+
+    // scene
+    scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x000000);
+
+    // camera
+    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.z = 2;
+
+    // renderer
+    renderer = new THREE.WebGLRenderer();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
+
+    // sphere
+    var radius = 1.0;
+    var geometry = new THREE.SphereGeometry(radius, 32, 32);
+    var material = new THREE.MeshBasicMaterial( {
+      color: 0xffffff,
+      transparent: true,
+      opacity: 0.3,
+      wireframe: true
+    } );
+    sphere = new THREE.Mesh(geometry, material);
+    scene.add( sphere );
+
+    function latitudeLongitudeToVector3(latitude, longitude, radius, offset) {
+      var phi = latitude * Math.PI / 180;
+      var theta = (longitude - 180) * Math.PI / 180;
+
+      var x = -(radius + offset) * Math.cos(phi) * Math.cos(theta);
+      var y = (radius + offset) * Math.sin(phi);
+      var z = (radius + offset) * Math.cos(phi) * Math.sin(theta);
+
+      return new THREE.Vector3(x, y, z);
+    }
+
+    // start and end is Vector3
+    function makeConnectionCurveGeometry (start, end, middleScalarRatio, distanceBetweenStartAndEndHalfRatio) {
+      middleScalarRatio = middleScalarRatio || 0.7;
+      distanceBetweenStartAndEndHalfRatio = distanceBetweenStartAndEndHalfRatio || 0.25;
+
+      let distanceBetweenStartAndEnd = start.clone().sub(end).length();
+
+      let middle = start.clone().lerp(end, 0.5);
+      let middleLength = middle.length();
+      middle = middle.normalize();
+      middle.multiplyScalar(middleLength + distanceBetweenStartAndEnd * middleScalarRatio);
+
+      let normalFromStartToEnd = (new THREE.Vector3()).subVectors(start, end);
+      normalFromStartToEnd.normalize();
+
+      let distanceBetweenStartAndEndHalf = distanceBetweenStartAndEnd * distanceBetweenStartAndEndHalfRatio;
+
+      /*
+                controlPointBetweenStartAndMiddle --- middle --- controlPointBetweenMiddleAndEnd
+            /                                                                                                                                                      \
+          /                                                                                                                                                          \
+      start                                                                                                                                                       end
+
+      */
+
+      // congtrol points
+      let controlPointBetweenStartAndMiddle = middle.clone().add(normalFromStartToEnd.clone().multiplyScalar(distanceBetweenStartAndEndHalf));
+      let controlPointBetweenMiddleAndEnd = middle.clone().add(normalFromStartToEnd.clone().multiplyScalar(-distanceBetweenStartAndEndHalf));
+
+      // curves
+      let curveBetweenStartAndMiddle = new THREE.QuadraticBezierCurve3(start, controlPointBetweenStartAndMiddle, middle);
+      let curveBetweenMiddleAndEnd = new THREE.QuadraticBezierCurve3(middle, controlPointBetweenMiddleAndEnd, end);
+
+      let vertexCountDesired = Math.floor(distanceBetweenStartAndEnd * 0.02 + 6) * 2;
+      let curvePoints = curveBetweenStartAndMiddle.getPoints(vertexCountDesired);
+      curvePoints = curvePoints.splice(0, curvePoints.length-1); // remove the last point which is duplicated with the next half of the curve (controlPointBetweenMiddleAndEnd).
+      curvePoints = curvePoints.concat(curveBetweenMiddleAndEnd.getPoints(vertexCountDesired));
+      let curveGeometry = new THREE.BufferGeometry().setFromPoints(curvePoints);
+
+      return curveGeometry;
+    }
+
+    // curve
+    let start = latitudeLongitudeToVector3(settings.startLatitude, settings.startLongitude, radius, 0);
+    let end = latitudeLongitudeToVector3(settings.endLatitude, settings.endLongitude, radius, 0);
+
+    let connectionCurveGeometry = makeConnectionCurveGeometry(start, end);
+    let connectionCurveMaterial = new THREE.LineBasicMaterial( {
+      color : 0xff0000,
+      linewidth : settings.curveLinewidth
+    } );
+
+    connectionCurveObject = new THREE.Line(connectionCurveGeometry, connectionCurveMaterial);
+    scene.add(connectionCurveObject);
+  }
+
+  function animate() {
+  	requestAnimationFrame( animate );
+    scene.rotation.y += settings.sceneRotationY;
+  	renderer.render( scene, camera );
+  }
+
+  </script>
+</body>
+</html>
