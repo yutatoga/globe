@@ -40,7 +40,7 @@
     let loaderBackgroundImage = new THREE.TextureLoader();
     loaderBackgroundImage.load('img/background.jpg', function(texture){
 
-      let geometry = new THREE.PlaneGeometry(1920, 1080, 1, 1);
+      let geometry = new THREE.PlaneGeometry(2048, 1024, 1, 1);
       let material = new THREE.MeshBasicMaterial({
         map: texture,
         blending: THREE.AdditiveBlending,
