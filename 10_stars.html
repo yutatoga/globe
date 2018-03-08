@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>globe</title>
+  <style>
+  body {
+    margin: 0;
+    overflow: hidden;
+   }
+  canvas { width: 100%; height: 100% }
+  </style>
+</head>
+<body>
+  <script type="text/javascript" src="js/three.js"></script>
+  <script type="text/javascript" src="js/dat.gui.min.js"></script>
+  <script>
+
+  var Settings = function() {
+    this.starsNumber = 1000;
+    this.starSize = 1.0;
+    this.earthRotationY = 0.001;
+    this.starsRotationY = 0.0005;
+    this.starsSpeadRange = 100;
+
+    // camera
+    this.cameraFov = 75;
+    this.cameraNear = 0.1;
+    this.cameraFar = 1000;
+    this.cameraPositionZ = 2.0;
+  }
+
+  var settings;
+  var scene, camera, renderer;
+  var groupEarth, groupStars;
+  var sphere;
+  var startsObject;
+  var starTexture;
+  var starsGeometry;
+  var starsMaterial;
+
+  init();
+  animate();
+
+  function init(){
+    // gui
+    settings = new Settings();
+    var gui = new dat.GUI();
+    gui.add(settings, 'starsNumber', 0, 10000).onChange(updateStarsGeometry);
+    gui.add(settings, 'starsSpeadRange', 0, 500).onChange(updateStarsGeometry);
+    gui.add(settings, 'starSize', 0, 10).onChange(updateStarMaterial);
+    gui.add(settings, 'earthRotationY', -0.01, 0.01);
+    gui.add(settings, 'starsRotationY', -0.01, 0.01);
+
+    var guiFolderCamera = gui.addFolder('Camera');
+    guiFolderCamera.add(settings, 'cameraFov', 0, 360).onChange(guiFolderCameraChanged);
+    guiFolderCamera.add(settings, 'cameraNear', 0.0001, 1).onChange(guiFolderCameraChanged);
+    guiFolderCamera.add(settings, 'cameraFar', 100, 100000).onChange(guiFolderCameraChanged);
+    guiFolderCamera.add(settings, 'cameraPositionZ', 0, 10).onChange(guiFolderCameraChanged);
+
+    function guiFolderCameraChanged(){
+      // camera
+      camera.fov  = settings.cameraFov;
+      camera.near = settings.cameraNear;
+      camera.far = settings.cameraFar;
+      camera.position.z = settings.cameraPositionZ;
+      camera.updateProjectionMatrix();
+    };
+
+    function updateStarsGeometry(){
+      groupStars.remove(startsObject);
+      startsObject.material.dispose();
+      startsObject.geometry.dispose();
+
+      starsGeometry = new THREE.Geometry();
+      for (var i = 0; i < settings.starsNumber; i ++) {
+        let star = new THREE.Vector3();
+        star.x = THREE.Math.randFloatSpread(settings.starsSpeadRange);
+        star.y = THREE.Math.randFloatSpread(settings.starsSpeadRange);
+        star.z = THREE.Math.randFloatSpread(settings.starsSpeadRange);
+        starsGeometry.vertices.push(star);
+      }
+      startsObject = new THREE.Points(starsGeometry, starsMaterial);
+      groupStars.add(startsObject);
+    }
+
+    function updateStarMaterial(){
+      groupStars.remove(startsObject);
+      startsObject.material.dispose();
+      startsObject.geometry.dispose();
+
+      // stars
+      starsMaterial = new THREE.PointsMaterial( {
+        map: starTexture,
+        transparent: true,
+        size: settings.starSize,
+        blending: THREE.AdditiveBlending,
+        side: THREE.BackSide,
+        fog: true,
+        depthWrite: false,
+        depthTest: true,
+        sizeAttenuation: true
+      } );
+      startsObject = new THREE.Points(starsGeometry, starsMaterial);
+      groupStars.add(startsObject);
+    }
+
+    function guiFolderCameraChanged(){
+      // camera
+      cameraFov = settings.cameraFov;
+      cameraNear = settings.cameraNear;
+      cameraFar = settings.cameraFar;
+      cameraPositionZ = settings.cameraPositionZ;
+
+      camera.fov = cameraFov;
+      camera.near = cameraNear;
+      camera.far = cameraFar;
+      camera.position.z = cameraPositionZ;
+      camera.updateProjectionMatrix();
+    };
+
+    // scene
+    scene = new THREE.Scene();
+
+    // camera
+    camera = new THREE.PerspectiveCamera(settings.cameraFov, window.innerWidth / window.innerHeight, settings.cameraNear, settings.cameraFar);
+    camera.position.z = settings.cameraPositionZ;
+
+    // renderer
+    renderer = new THREE.WebGLRenderer();
+    renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
+
+    // earth
+    groupEarth = new THREE.Group();
+    scene.add(groupEarth);
+    let loaderGlobeImage = new THREE.TextureLoader();
+    loaderGlobeImage.load('img/map_day.jpg', function (texture){
+      let geometry = new THREE.SphereGeometry(1, 32, 32);
+      let material = new THREE.MeshBasicMaterial( {
+        map: texture,
+        overdraw: 0.5
+      } );
+      sphere = new THREE.Mesh(geometry, material);
+      sphere.position.z = sphere.position.z;
+      groupEarth.add(sphere);
+    } );
+
+    // stars
+    groupStars = new THREE.Group();
+    scene.add(groupStars);
+    starsGeometry = new THREE.Geometry();
+    for (var i = 0; i < 1000; i ++) {
+      let star = new THREE.Vector3();
+      star.x = THREE.Math.randFloatSpread(settings.starsSpeadRange);
+      star.y = THREE.Math.randFloatSpread(settings.starsSpeadRange);
+      star.z = THREE.Math.randFloatSpread(settings.starsSpeadRange);
+      starsGeometry.vertices.push(star);
+    }
+
+    let loaderStarImage = new THREE.TextureLoader();
+    loaderStarImage.load('img/star.jpg', function (texture){
+      starTexture = texture;
+      starsMaterial = new THREE.PointsMaterial( {
+        map: starTexture,
+        transparent: true,
+        size: 1,
+        blending: THREE.AdditiveBlending,
+        side: THREE.BackSide,
+        fog: true,
+        depthWrite: false,
+        depthTest: true,
+        sizeAttenuation: true
+      } );
+      startsObject = new THREE.Points(starsGeometry, starsMaterial);
+      groupStars.add(startsObject);
+    });
+  }
+
+  function animate() {
+  	requestAnimationFrame(animate);
+    groupEarth.rotation.y += settings.earthRotationY;
+    groupStars.rotation.y += settings.starsRotationY;
+  	renderer.render(scene, camera);
+  }
+
+  </script>
+</body>
+</html>
