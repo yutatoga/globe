@@ -17,17 +17,18 @@
   <script>
 
   var Settings = function() {
-    this.starsNumber = 1000;
-    this.starSize = 1.0;
-    this.earthRotationY = 0.001;
-    this.starsRotationY = 0.0005;
-    this.starsSpeadRange = 100;
-
     // camera
     this.cameraFov = 75;
     this.cameraNear = 0.1;
     this.cameraFar = 1000;
     this.cameraPositionZ = 2.0;
+
+    // star
+    this.starsNumber = 1000;
+    this.starSize = 1.0;
+    this.earthRotationY = 0.001;
+    this.starsRotationY = 0.0005;
+    this.starsSpeadRange = 100;
   }
 
   var settings;
@@ -46,12 +47,8 @@
     // gui
     settings = new Settings();
     var gui = new dat.GUI();
-    gui.add(settings, 'starsNumber', 0, 10000).onChange(updateStarsGeometry);
-    gui.add(settings, 'starsSpeadRange', 0, 500).onChange(updateStarsGeometry);
-    gui.add(settings, 'starSize', 0, 10).onChange(updateStarMaterial);
-    gui.add(settings, 'earthRotationY', -0.01, 0.01);
-    gui.add(settings, 'starsRotationY', -0.01, 0.01);
 
+    // camera
     var guiFolderCamera = gui.addFolder('Camera');
     guiFolderCamera.add(settings, 'cameraFov', 0, 360).onChange(guiFolderCameraChanged);
     guiFolderCamera.add(settings, 'cameraNear', 0.0001, 1).onChange(guiFolderCameraChanged);
@@ -59,13 +56,24 @@
     guiFolderCamera.add(settings, 'cameraPositionZ', 0, 10).onChange(guiFolderCameraChanged);
 
     function guiFolderCameraChanged(){
-      // camera
-      camera.fov  = settings.cameraFov;
-      camera.near = settings.cameraNear;
-      camera.far = settings.cameraFar;
-      camera.position.z = settings.cameraPositionZ;
+      cameraFov = settings.cameraFov;
+      cameraNear = settings.cameraNear;
+      cameraFar = settings.cameraFar;
+      cameraPositionZ = settings.cameraPositionZ;
+
+      camera.fov = cameraFov;
+      camera.near = cameraNear;
+      camera.far = cameraFar;
+      camera.position.z = cameraPositionZ;
       camera.updateProjectionMatrix();
     };
+
+    // star
+    gui.add(settings, 'starsNumber', 0, 10000).onChange(updateStarsGeometry);
+    gui.add(settings, 'starsSpeadRange', 0, 500).onChange(updateStarsGeometry);
+    gui.add(settings, 'starSize', 0, 10).onChange(updateStarMaterial);
+    gui.add(settings, 'earthRotationY', -0.01, 0.01);
+    gui.add(settings, 'starsRotationY', -0.01, 0.01);
 
     function updateStarsGeometry(){
       groupStars.remove(startsObject);
@@ -104,20 +112,6 @@
       startsObject = new THREE.Points(starsGeometry, starsMaterial);
       groupStars.add(startsObject);
     }
-
-    function guiFolderCameraChanged(){
-      // camera
-      cameraFov = settings.cameraFov;
-      cameraNear = settings.cameraNear;
-      cameraFar = settings.cameraFar;
-      cameraPositionZ = settings.cameraPositionZ;
-
-      camera.fov = cameraFov;
-      camera.near = cameraNear;
-      camera.far = cameraFar;
-      camera.position.z = cameraPositionZ;
-      camera.updateProjectionMatrix();
-    };
 
     // scene
     scene = new THREE.Scene();
