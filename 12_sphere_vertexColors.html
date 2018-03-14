@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>globe</title>
+  <style>
+  body {
+    margin: 0;
+    overflow: hidden;
+  }
+
+  </style>
+</head>
+<body>
+  <script type="text/javascript" src="js/three.js"></script>
+  <script type="text/javascript" src="js/OrbitControls.js"></script>
+  <script>
+
+  var scene, camera, renderer;
+  var controls;
+
+  init();
+  animate();
+
+  function init(){
+    // scene
+    scene = new THREE.Scene();
+
+    // camera
+    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.z = 2;
+
+    // light
+    var ambientLight = new THREE.AmbientLight(0x999999);
+    scene.add(ambientLight);
+
+    var directionalLight = new THREE.DirectionalLight(0xcccccc);
+    directionalLight.position.set(0, 1, 0);
+    scene.add(directionalLight);
+
+    // OrbitControls
+    controls = new THREE.OrbitControls(camera);
+
+    // - damping
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.15; // default is 0.25
+
+    // - auto rotate
+    controls.autoRotate = true;
+    controls.autoRotateSpeed = 0.2; // default is 2.0
+
+    // renderer
+    renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setPixelRatio( window.devicePixelRatio );
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
+
+    // sphere
+    let sphereRadius = 1.0;
+    var geometry = new THREE.SphereGeometry(sphereRadius, 16, 16);
+    var faceIndices = ['a', 'b', 'c'];
+
+    for (let i = 0; i < geometry.faces.length; i++){
+      let face = geometry.faces[i];
+      for (let j = 0; j < 3; j++){
+        let vertexIndex = face[ faceIndices[j] ];
+        let p = geometry.vertices[vertexIndex];
+        let color = new THREE.Color(0xffffff);
+        color.setHSL((p.y/sphereRadius + 1)/2, 1.0, 0.5);
+        face.vertexColors[j] = color;
+      }
+    }
+
+    var material = new THREE.MeshPhongMaterial( {
+      color: 0xffffff,
+      flatShading: true,
+      vertexColors: THREE.VertexColors,
+      shininess: 0
+    } );
+
+    // sphere
+    let sphereMesh = new THREE.Mesh(geometry, material);
+
+    // wireframe
+    let wireframeMaterial = new THREE.MeshBasicMaterial( { color: 0x000000, wireframe: true, transparent: true } );
+    let wireframeMesh = new THREE.Mesh(geometry, wireframeMaterial);
+    sphereMesh.add(wireframeMesh);
+
+    scene.add(sphereMesh);
+  }
+
+  function animate() {
+  	requestAnimationFrame(animate);
+    controls.update(); // required if controls.enableDamping or controls.autoRotate are set to true
+  	renderer.render(scene, camera);
+  }
+
+  </script>
+</body>
+</html>
