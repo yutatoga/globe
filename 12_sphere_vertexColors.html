@@ -57,7 +57,7 @@
 
     // sphere
     let sphereRadius = 1.0;
-    var geometry = new THREE.SphereGeometry(sphereRadius, 16, 16);
+    var geometry = new THREE.SphereGeometry(sphereRadius, 32, 32);
     var faceIndices = ['a', 'b', 'c'];
 
     for (let i = 0; i < geometry.faces.length; i++){
@@ -73,7 +73,7 @@
 
     var material = new THREE.MeshPhongMaterial( {
       color: 0xffffff,
-      flatShading: true,
+      flatShading: false,
       vertexColors: THREE.VertexColors,
       shininess: 0
     } );
