@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>globe</title>
+  <style>
+  body {
+    margin: 0;
+    overflow: hidden;
+  }
+
+  </style>
+</head>
+<body>
+  <script type="text/javascript" src="js/three.js"></script>
+  <script>
+
+  var PI_HALF = Math.PI / 2;
+
+  var Settings = function(){
+    this.cameraDistance = 10;
+    this.cameraDistanceMin = 0.2;
+    this.cameraDistanceMax = 7;
+    this.cameraDistanceAnimationStart = 10;
+    this.cameraDistanceAnimationEnd = 2;
+    this.cameraDistanceAnimationSpeed = 0.1;
+    this.cameraDistanceAnimationWheelSpeed = 0.0002;
+    this.cameraDistanceAnimationDampRatio = 0.003;
+  }
+
+  var settings = new Settings();
+  var scene, camera, renderer;
+  var sphere;
+
+  var origin = new THREE.Vector3(0, 0, 0);
+  var mouseRotation = {x: -PI_HALF, y: PI_HALF}; // initial rotation: "FROM" (rotation by mouse interaction)
+  var mousePositionOnDown = {x: 0, y: 0};
+  var mousePositiononMouseMove = {x: 0, y: 0};
+  var target = {x: -PI_HALF, y: PI_HALF / 8.5}; // initial rotation: "TO" (starts from Japan)
+  var targetOnDown = {x: 0, y: 0};
+
+  init();
+  animate();
+
+  function init(){
+    // scene
+    scene = new THREE.Scene();
+
+    // camera
+    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.z = settings.cameraDistanceAnimationStart;
+
+    // renderer
+    renderer = new THREE.WebGLRenderer();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
+    document.body.addEventListener('mousewheel', onMouseWheel, false);
+    document.body.addEventListener('mousedown', onMouseDown, false);
+
+    // sphere
+    var geometry = new THREE.SphereGeometry(1, 16, 16);
+    var material = new THREE.MeshBasicMaterial( {
+      color: 0xffffff,
+      wireframe: true
+    } );
+    sphere = new THREE.Mesh(geometry, material);
+    scene.add(sphere);
+  }
+
+  function animate() {
+    // - mouse rotation
+    mouseRotation.x += (target.x - mouseRotation.x) * 0.1;
+    mouseRotation.y += (target.y - mouseRotation.y) * 0.1;
+
+    // camera
+    settings.cameraDistance += (settings.cameraDistanceAnimationEnd - settings.cameraDistance) * settings.cameraDistanceAnimationSpeed;
+
+    camera.position.x = settings.cameraDistance * Math.sin(mouseRotation.x) * Math.cos(mouseRotation.y);
+    camera.position.y = settings.cameraDistance * Math.sin(mouseRotation.y);
+    camera.position.z = settings.cameraDistance * Math.cos(mouseRotation.x) * Math.cos(mouseRotation.y);
+
+    camera.lookAt(origin);
+
+  	requestAnimationFrame(animate);
+    scene.rotation.y += 0.001;
+  	renderer.render(scene, camera);
+  }
+
+  function onMouseWheel(event) {
+  event.preventDefault();
+  zoom(event.wheelDeltaY * settings.cameraDistanceAnimationWheelSpeed);
+}
+
+function onMouseDown(event){
+  event.preventDefault(event);
+  document.body.addEventListener('mousemove', onMouseMove, false);
+  document.body.addEventListener('mouseup', onMouseUp, false);
+  document.body.addEventListener('mouseout', onMouseOut, false);
+
+  mousePositionOnDown.x = -event.clientX; // for intuitive mouse interaction
+  mousePositionOnDown.y = event.clientY;
+
+  targetOnDown.x = target.x;
+  targetOnDown.y = target.y;
+}
+
+function onMouseMove(event){
+  event.preventDefault(event);
+
+  mousePositiononMouseMove.x = -event.clientX; // for intuitive mouse interaction
+  mousePositiononMouseMove.y = event.clientY;
+
+  let cameraDistanceAnimationDamp = settings.cameraDistance * settings.cameraDistanceAnimationDampRatio; // change damp value with cameraDistance (closer to the globe, slower animation)
+  target.x = targetOnDown.x + (mousePositiononMouseMove.x - mousePositionOnDown.x) * cameraDistanceAnimationDamp;
+  target.y = targetOnDown.y + (mousePositiononMouseMove.y - mousePositionOnDown.y) * cameraDistanceAnimationDamp;
+
+  target.y = target.y > PI_HALF ? PI_HALF : target.y; // rotation limitation
+  target.y = target.y < - PI_HALF ? - PI_HALF : target.y; // rotation limitation
+}
+
+function onMouseUp(event) {
+  document.body.removeEventListener('mousemove', onMouseMove, false);
+  document.body.removeEventListener('mouseup', onMouseUp, false);
+  document.body.removeEventListener('mouseout', onMouseOut, false);
+}
+
+function onMouseOut(event) {
+  document.body.removeEventListener('mousemove', onMouseMove, false);
+  document.body.removeEventListener('mouseup', onMouseUp, false);
+  document.body.removeEventListener('mouseout', onMouseOut, false);
+}
+
+function zoom(delta) {
+  settings.cameraDistanceAnimationEnd -= delta;
+  settings.cameraDistanceAnimationEnd = settings.cameraDistanceAnimationEnd > settings.cameraDistanceMax ? settings.cameraDistanceMax : settings.cameraDistanceAnimationEnd;
+  settings.cameraDistanceAnimationEnd = settings.cameraDistanceAnimationEnd < settings.cameraDistanceMin ? settings.cameraDistanceMin : settings.cameraDistanceAnimationEnd;
+}
+
+
+  </script>
+</body>
+</html>
