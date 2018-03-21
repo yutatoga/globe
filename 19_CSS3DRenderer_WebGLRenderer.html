@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>globe</title>
+  <style>
+  body {
+    margin: 0;
+    overflow: hidden;
+  }
+
+  #CSS3DContainer {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    left: 0;
+    top: 0;
+  }
+
+  #contents {
+    background-color: #87CEFA;
+    opacity: 0.75;
+  }
+  </style>
+</head>
+<body>
+
+  <div id="CSS3DContainer"></div>
+  <div id="contents">
+    <h1>CSS3Renderer Test</h1>
+    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+    <a href="https://www.google.com/">Google</a>
+  </div>
+
+  <script type="text/javascript" src="js/three.js"></script>
+  <script type="text/javascript" src="js/TrackballControls.js"></script>
+  <script type="text/javascript" src="js/CSS3DRenderer.js"></script>
+  <script>
+
+  var camera, scene;
+  var rendererWebGL;
+  var rendererCSS3D;
+  var controls;
+  var object;
+
+  init();
+  animate();
+
+  function init(){
+    // camera
+    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 10000);
+    camera.position.z = 1000;
+
+    // TrackballControls
+    controls = new THREE.TrackballControls(camera);
+
+    // scene
+    scene = new THREE.Scene();
+
+    // WebGLRenderer
+    rendererWebGL = new THREE.WebGLRenderer();
+    rendererWebGL.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(rendererWebGL.domElement);
+
+    // sphere
+    var geometry = new THREE.SphereGeometry(500, 10, 10);
+    var material = new THREE.MeshBasicMaterial( {
+      color: 0xff0000,
+      wireframe: true
+    } );
+    sphere = new THREE.Mesh(geometry, material);
+    scene.add(sphere);
+
+    // CSS3DRenderer
+    rendererCSS3D = new THREE.CSS3DRenderer();
+    rendererCSS3D.setSize(window.innerWidth, window.innerHeight);
+    document.getElementById('CSS3DContainer').appendChild(rendererCSS3D.domElement);
+
+    // css 3d object
+    object = new THREE.CSS3DObject(document.getElementById('contents'));
+    object.position.set(0, 0, 0);
+    scene.add(object);
+  }
+
+  function animate() {
+    requestAnimationFrame(animate);
+    controls.update();
+
+    scene.rotation.y += 0.001;
+
+    rendererWebGL.render(scene, camera);
+    rendererCSS3D.render(scene, camera);
+  }
+
+  </script>
+</body>
+</html>
