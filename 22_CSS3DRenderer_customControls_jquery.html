@@ -99,54 +99,49 @@
 
   // jquery
   $(document).ready(function(){
-    $(document).ready(function(){
-      var isDragging = false;
+    var isDragging = false;
 
-      /*
 
-       THIS KILLS CLICKING EVENT TO GO TO LINK
+    // THIS KILLS CLICKING EVENT TO GO TO LINK
+    // $(document).on('click',function(event) {
+    //   event.preventDefault();
+    // });
 
-      $(document).on('click',function(event) {
-        event.preventDefault();
-      });
 
-      */
+    $(document).on('mousedown',function(event) {
+      isDragging = true;
+      event.preventDefault();
 
-      $(document).on('mousedown',function(event) {
-        isDragging = true;
-        event.preventDefault();
+      mousePositionOnDown.x = -event.clientX; // for intuitive mouse interaction
+      mousePositionOnDown.y = event.clientY;
 
-        mousePositionOnDown.x = -event.clientX; // for intuitive mouse interaction
-        mousePositionOnDown.y = event.clientY;
-
-        targetOnDown.x = target.x;
-        targetOnDown.y = target.y;
-
-      });
-
-      $(document).on('mousewheel', function(event) {
-        event.preventDefault();
-        zoom(event.originalEvent.wheelDeltaY * settings.cameraDistanceAnimationWheelSpeed);
-      });
-
-      $(document).on('mousemove', function(event) {
-        event.preventDefault();
-        if(isDragging){
-          mousePositiononMouseMove.x = -event.clientX; // for intuitive mouse interaction
-          mousePositiononMouseMove.y = event.clientY;
-
-          let cameraDistanceAnimationDamp = settings.cameraDistance * settings.cameraDistanceAnimationDampRatio; // change damp value with cameraDistance (closer to the globe, slower animation)
-          target.x = targetOnDown.x + (mousePositiononMouseMove.x - mousePositionOnDown.x) * cameraDistanceAnimationDamp;
-          target.y = targetOnDown.y + (mousePositiononMouseMove.y - mousePositionOnDown.y) * cameraDistanceAnimationDamp;
-        }
-      });
-
-      $(document).on('mouseup', function(event) {
-        event.preventDefault();
-        isDragging = false;
-      });
+      targetOnDown.x = target.x;
+      targetOnDown.y = target.y;
 
     });
+
+    $(document).on('mousewheel', function(event) {
+      event.preventDefault();
+      zoom(event.originalEvent.wheelDeltaY * settings.cameraDistanceAnimationWheelSpeed);
+    });
+
+    $(document).on('mousemove', function(event) {
+      event.preventDefault();
+      if(isDragging){
+        mousePositiononMouseMove.x = -event.clientX; // for intuitive mouse interaction
+        mousePositiononMouseMove.y = event.clientY;
+
+        let cameraDistanceAnimationDamp = settings.cameraDistance * settings.cameraDistanceAnimationDampRatio; // change damp value with cameraDistance (closer to the globe, slower animation)
+        target.x = targetOnDown.x + (mousePositiononMouseMove.x - mousePositionOnDown.x) * cameraDistanceAnimationDamp;
+        target.y = targetOnDown.y + (mousePositiononMouseMove.y - mousePositionOnDown.y) * cameraDistanceAnimationDamp;
+      }
+    });
+
+    $(document).on('mouseup', function(event) {
+      event.preventDefault();
+      isDragging = false;
+    });
+
   });
 
   function zoom(delta) {
