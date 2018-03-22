@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>globe</title>
+  <style>
+  body {
+    margin: 0;
+    overflow: hidden;
+  }
+  #contents {
+    background-color:#f7CEFA;
+  }
+  </style>
+</head>
+<body>
+
+  <div id="container"></div>
+  <div id="contents">
+    <h1>CSS3Renderer Test</h1>
+    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+    <a href="https://www.google.com/">Google</a>
+    <div id="camera">
+      <button id="a">camera position A</button>
+      <button id="b">camera position B</button>
+      <button id="c">camera position C</button>
+    </div>
+  </div>
+
+  <script type="text/javascript" src="js/three.js"></script>
+  <script type="text/javascript" src="js/CSS3DRenderer.js"></script>
+  <script type="text/javascript" src="js/jquery.min.js"></script>
+  <script>
+
+  var PI_HALF = Math.PI / 2;
+
+  var Settings = function(){
+    this.cameraDistance = 10;
+    this.cameraDistanceMin = 0.2;
+    this.cameraDistanceMax = 7000000;
+    this.cameraDistanceAnimationStart = 10;
+    this.cameraDistanceAnimationEnd = 800;
+    this.cameraDistanceAnimationSpeed = 0.075;
+    this.cameraDistanceAnimationWheelSpeed = 0.1;
+    this.cameraDistanceAnimationDampRatio = 0.00003;
+  }
+
+  var settings = new Settings();
+  var origin = new THREE.Vector3(0, 0, 0);
+  var mouseRotation = {x: 0, y: 0}; // initial rotation: "FROM" (rotation by mouse interaction)
+  var mousePositionOnDown = {x: 0, y: 0};
+  var mousePositiononMouseMove = {x: 0, y: 0};
+  var target = {x: 0, y: 0}; // initial rotation: "TO" (starts from Japan)
+  var targetOnDown = {x: 0, y: 0};
+
+  var scene, camera, css3drenderer;
+  var controls;
+  var object;
+
+  init();
+  animate();
+
+  function init(){
+    // scene
+    scene = new THREE.Scene();
+
+    // camera
+    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 5000);
+    camera.position.z = 1000;
+
+    // renderer
+    css3drenderer = new THREE.CSS3DRenderer();
+    css3drenderer.setSize(window.innerWidth, window.innerHeight);
+
+    // document
+    document.getElementById('container').appendChild(css3drenderer.domElement);
+
+    // css 3d object
+    object = new THREE.CSS3DObject(document.getElementById('contents'));
+    object.position.set(0, 0, 0);
+    scene.add(object);
+  }
+
+  function animate() {
+    // - mouse rotation
+    mouseRotation.x += (target.x - mouseRotation.x) * 0.1;
+    mouseRotation.y += (target.y - mouseRotation.y) * 0.1;
+
+    // camera
+    settings.cameraDistance += (settings.cameraDistanceAnimationEnd - settings.cameraDistance) * settings.cameraDistanceAnimationSpeed;
+
+    camera.position.x = settings.cameraDistance * Math.sin(mouseRotation.x) * Math.cos(mouseRotation.y);
+    camera.position.y = settings.cameraDistance * Math.sin(mouseRotation.y);
+    camera.position.z = settings.cameraDistance * Math.cos(mouseRotation.x) * Math.cos(mouseRotation.y);
+
+    camera.lookAt(origin);
+
+    requestAnimationFrame(animate);
+
+    scene.rotation.y += 0.001;
+    css3drenderer.render(scene, camera);
+    css3drenderer.domElement.style.position = 'absolute'
+  }
+
+  // jquery
+  $(document).ready(function(){
+    var isDragging = false;
+
+
+    // THIS KILLS CLICKING EVENT TO GO TO LINK
+    // $(document).on('click',function(event) {
+    //   event.preventDefault();
+    // });
+
+
+    $(document).on('mousedown',function(event) {
+      isDragging = true;
+      event.preventDefault();
+
+      mousePositionOnDown.x = -event.clientX; // for intuitive mouse interaction
+      mousePositionOnDown.y = event.clientY;
+
+      targetOnDown.x = target.x;
+      targetOnDown.y = target.y;
+
+    });
+
+    $(document).on('mousewheel', function(event) {
+      event.preventDefault();
+      zoom(event.originalEvent.wheelDeltaY * settings.cameraDistanceAnimationWheelSpeed);
+    });
+
+    $(document).on('mousemove', function(event) {
+      event.preventDefault();
+      if(isDragging){
+        mousePositiononMouseMove.x = -event.clientX; // for intuitive mouse interaction
+        mousePositiononMouseMove.y = event.clientY;
+
+        let cameraDistanceAnimationDamp = settings.cameraDistance * settings.cameraDistanceAnimationDampRatio; // change damp value with cameraDistance (closer to the globe, slower animation)
+        target.x = targetOnDown.x + (mousePositiononMouseMove.x - mousePositionOnDown.x) * cameraDistanceAnimationDamp;
+        target.y = targetOnDown.y + (mousePositiononMouseMove.y - mousePositionOnDown.y) * cameraDistanceAnimationDamp;
+      }
+    });
+
+    $(document).on('mouseup', function(event) {
+      event.preventDefault();
+      isDragging = false;
+    });
+
+
+    // camera
+    $("#a").click(function () {
+      settings.cameraDistanceAnimationEnd = 500;
+    });
+
+    $("#b").click(function () {
+      settings.cameraDistanceAnimationEnd = 1000;
+    });
+
+    $("#c").click(function () {
+      settings.cameraDistanceAnimationEnd = 2000;
+    });
+
+  });
+
+  function zoom(delta) {
+    settings.cameraDistanceAnimationEnd -= delta;
+    settings.cameraDistanceAnimationEnd = settings.cameraDistanceAnimationEnd > settings.cameraDistanceMax ? settings.cameraDistanceMax : settings.cameraDistanceAnimationEnd;
+    settings.cameraDistanceAnimationEnd = settings.cameraDistanceAnimationEnd < settings.cameraDistanceMin ? settings.cameraDistanceMin : settings.cameraDistanceAnimationEnd;
+  }
+
+  </script>
+</body>
+</html>
