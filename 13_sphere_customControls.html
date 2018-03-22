@@ -81,60 +81,60 @@
 
     camera.lookAt(origin);
 
-  	requestAnimationFrame(animate);
+    requestAnimationFrame(animate);
     scene.rotation.y += 0.001;
-  	renderer.render(scene, camera);
+    renderer.render(scene, camera);
   }
 
   function onMouseWheel(event) {
-  event.preventDefault();
-  zoom(event.wheelDeltaY * settings.cameraDistanceAnimationWheelSpeed);
-}
+    event.preventDefault();
+    zoom(event.wheelDeltaY * settings.cameraDistanceAnimationWheelSpeed);
+  }
 
-function onMouseDown(event){
-  event.preventDefault(event);
-  document.body.addEventListener('mousemove', onMouseMove, false);
-  document.body.addEventListener('mouseup', onMouseUp, false);
-  document.body.addEventListener('mouseout', onMouseOut, false);
+  function onMouseDown(event){
+    event.preventDefault(event);
+    document.body.addEventListener('mousemove', onMouseMove, false);
+    document.body.addEventListener('mouseup', onMouseUp, false);
+    document.body.addEventListener('mouseout', onMouseOut, false);
 
-  mousePositionOnDown.x = -event.clientX; // for intuitive mouse interaction
-  mousePositionOnDown.y = event.clientY;
+    mousePositionOnDown.x = -event.clientX; // for intuitive mouse interaction
+    mousePositionOnDown.y = event.clientY;
 
-  targetOnDown.x = target.x;
-  targetOnDown.y = target.y;
-}
+    targetOnDown.x = target.x;
+    targetOnDown.y = target.y;
+  }
 
-function onMouseMove(event){
-  event.preventDefault(event);
+  function onMouseMove(event){
+    event.preventDefault(event);
 
-  mousePositiononMouseMove.x = -event.clientX; // for intuitive mouse interaction
-  mousePositiononMouseMove.y = event.clientY;
+    mousePositiononMouseMove.x = -event.clientX; // for intuitive mouse interaction
+    mousePositiononMouseMove.y = event.clientY;
 
-  let cameraDistanceAnimationDamp = settings.cameraDistance * settings.cameraDistanceAnimationDampRatio; // change damp value with cameraDistance (closer to the globe, slower animation)
-  target.x = targetOnDown.x + (mousePositiononMouseMove.x - mousePositionOnDown.x) * cameraDistanceAnimationDamp;
-  target.y = targetOnDown.y + (mousePositiononMouseMove.y - mousePositionOnDown.y) * cameraDistanceAnimationDamp;
+    let cameraDistanceAnimationDamp = settings.cameraDistance * settings.cameraDistanceAnimationDampRatio; // change damp value with cameraDistance (closer to the globe, slower animation)
+    target.x = targetOnDown.x + (mousePositiononMouseMove.x - mousePositionOnDown.x) * cameraDistanceAnimationDamp;
+    target.y = targetOnDown.y + (mousePositiononMouseMove.y - mousePositionOnDown.y) * cameraDistanceAnimationDamp;
 
-  target.y = target.y > PI_HALF ? PI_HALF : target.y; // rotation limitation
-  target.y = target.y < - PI_HALF ? - PI_HALF : target.y; // rotation limitation
-}
+    target.y = target.y > PI_HALF ? PI_HALF : target.y; // rotation limitation
+    target.y = target.y < - PI_HALF ? - PI_HALF : target.y; // rotation limitation
+  }
 
-function onMouseUp(event) {
-  document.body.removeEventListener('mousemove', onMouseMove, false);
-  document.body.removeEventListener('mouseup', onMouseUp, false);
-  document.body.removeEventListener('mouseout', onMouseOut, false);
-}
+  function onMouseUp(event) {
+    document.body.removeEventListener('mousemove', onMouseMove, false);
+    document.body.removeEventListener('mouseup', onMouseUp, false);
+    document.body.removeEventListener('mouseout', onMouseOut, false);
+  }
 
-function onMouseOut(event) {
-  document.body.removeEventListener('mousemove', onMouseMove, false);
-  document.body.removeEventListener('mouseup', onMouseUp, false);
-  document.body.removeEventListener('mouseout', onMouseOut, false);
-}
+  function onMouseOut(event) {
+    document.body.removeEventListener('mousemove', onMouseMove, false);
+    document.body.removeEventListener('mouseup', onMouseUp, false);
+    document.body.removeEventListener('mouseout', onMouseOut, false);
+  }
 
-function zoom(delta) {
-  settings.cameraDistanceAnimationEnd -= delta;
-  settings.cameraDistanceAnimationEnd = settings.cameraDistanceAnimationEnd > settings.cameraDistanceMax ? settings.cameraDistanceMax : settings.cameraDistanceAnimationEnd;
-  settings.cameraDistanceAnimationEnd = settings.cameraDistanceAnimationEnd < settings.cameraDistanceMin ? settings.cameraDistanceMin : settings.cameraDistanceAnimationEnd;
-}
+  function zoom(delta) {
+    settings.cameraDistanceAnimationEnd -= delta;
+    settings.cameraDistanceAnimationEnd = settings.cameraDistanceAnimationEnd > settings.cameraDistanceMax ? settings.cameraDistanceMax : settings.cameraDistanceAnimationEnd;
+    settings.cameraDistanceAnimationEnd = settings.cameraDistanceAnimationEnd < settings.cameraDistanceMin ? settings.cameraDistanceMin : settings.cameraDistanceAnimationEnd;
+  }
 
 
   </script>
