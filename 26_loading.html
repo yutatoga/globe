@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>globe</title>
+  <style>
+  body {
+    margin: 0;
+    overflow: hidden;
+  }
+
+  </style>
+</head>
+<body>
+
+  <script type="text/javascript" src="js/three.js"></script>
+  <script>
+
+  var PI_HALF = Math.PI / 2;
+
+  var Settings = function(){
+    this.cameraDistance = 10;
+    this.cameraDistanceMin = 0.2;
+    this.cameraDistanceMax = 7;
+    this.cameraDistanceAnimationStart = 10;
+    this.cameraDistanceAnimationEnd = 2;
+    this.cameraDistanceAnimationSpeed = 0.1;
+    this.cameraDistanceAnimationWheelSpeed = 0.0002;
+    this.cameraDistanceAnimationDampRatio = 0.003;
+  }
+
+  var settings = new Settings();
+  var sceneMain, sceneLoading;
+  var cameraMain, cameraLoading;
+  var renderer;
+  var planeMesh, sphereMesh;
+  var groupLookAtCamera;
+
+  var origin = new THREE.Vector3(0, 0, 0);
+  var mouseRotation = {x: 0, y: 0}; // initial rotation: "FROM" (rotation by mouse interaction)
+  var mousePositionOnDown = {x: 0, y: 0};
+  var mousePositiononMouseMove = {x: 0, y: 0};
+  var target = {x: 0, y: 0}; // initial rotation: "TO" (starts from Japan)
+  var targetOnDown = {x: 0, y: 0};
+
+  var isLoaded = false;
+
+  init();
+  animate();
+
+  function init(){
+    // main scene
+    sceneMain = new THREE.Scene();
+
+    // camera for main scene
+    cameraMain = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    cameraMain.position.z = settings.cameraDistanceAnimationStart;
+
+    var loadingManager = new THREE.LoadingManager(function(){
+      sphereMesh.visible = true;
+    });
+    // This function will be called when all loading is completed.
+    loadingManager.onLoad = function () {
+      console.log('Loading complete!');
+      isLoaded = true;
+    };
+
+    // This function will be called when an item is complete.
+    loadingManager.onProgress = function (url, itemsLoaded, itemsTotal) {
+      console.log('Loading file: ' + url + '.\nLoaded ' + itemsLoaded + ' of ' + itemsTotal + ' files.');
+    };
+
+    // This function will be called when any item errors.
+    loadingManager.onError = function (url) {
+      console.log('There was an error loading ' + url);
+    };
+
+    // renderer
+    renderer = new THREE.WebGLRenderer( { antialias: true });
+    renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
+    document.body.addEventListener('mousewheel', onMouseWheel, false);
+    document.body.addEventListener('mousedown', onMouseDown, false);
+
+    // sphere without texture (wireframe)
+    var sphereGeometry = new THREE.SphereGeometry(1, 16, 16);
+    let materialWireframe = new THREE.MeshBasicMaterial({
+      wireframe: true
+    } );
+    sphereMesh = new THREE.Mesh(sphereGeometry, materialWireframe);
+
+    // sphere with texture
+    let loader = new THREE.TextureLoader(loadingManager);
+    let sphereTexture = loader.load('img/map_large.jpg', function (texture){
+      console.log("image is loaded", texture);
+    } );
+    let sphereMaterial = new THREE.MeshBasicMaterial( {
+      map: sphereTexture
+    } );
+    let sphereMeshWithTexture = new THREE.Mesh(sphereGeometry, sphereMaterial);
+    sphereMesh.add(sphereMeshWithTexture)
+
+    sceneMain.add(sphereMesh);
+
+    // plane
+    groupLookAtCamera = new THREE.Group();
+    sceneMain.add(groupLookAtCamera);
+    let planeGeometry = new THREE.PlaneGeometry(100, 100, 1, 1);
+    let planeTexture = loader.load('img/background.jpg');
+    let planeMaterial = new THREE.MeshBasicMaterial( {
+      map: planeTexture
+    } );
+    planeMesh = new THREE.Mesh(planeGeometry, planeMaterial);
+    planeMesh.position.z = -10;
+    groupLookAtCamera.add(planeMesh);
+
+    // loading scene
+    sceneLoading = new THREE.Scene();
+    cameraLoading = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    cameraLoading.position.z = 5;
+
+
+    let boxGeometry = new THREE.BoxGeometry(1, 1, 1);
+    let boxMaterial = new THREE.MeshBasicMaterial( {
+      color: 0xffff00,
+      wireframe: true
+    } );
+    let boxMesh = new THREE.Mesh(boxGeometry, boxMaterial);
+    sceneLoading.add(boxMesh);
+  }
+
+  function animate() {
+    if(isLoaded){
+      // main scene
+      requestAnimationFrame(animate);
+      renderer.render(sceneMain, cameraMain);
+
+      // - mouse rotation
+      mouseRotation.x += (target.x - mouseRotation.x) * 0.1;
+      mouseRotation.y += (target.y - mouseRotation.y) * 0.1;
+
+      // camera
+      settings.cameraDistance += (settings.cameraDistanceAnimationEnd - settings.cameraDistance) * settings.cameraDistanceAnimationSpeed;
+
+      cameraMain.position.x = settings.cameraDistance * Math.sin(mouseRotation.x) * Math.cos(mouseRotation.y);
+      cameraMain.position.y = settings.cameraDistance * Math.sin(mouseRotation.y);
+      cameraMain.position.z = settings.cameraDistance * Math.cos(mouseRotation.x) * Math.cos(mouseRotation.y);
+      cameraMain.lookAt(origin);
+
+      sphereMesh.rotateY(0.001);
+      groupLookAtCamera.lookAt(cameraMain.position);
+    } else {
+      // loading scene
+      requestAnimationFrame(animate); //
+      renderer.render(sceneLoading, cameraLoading);
+
+      sceneLoading.rotation.x += 0.1;
+      sceneLoading.rotation.y += 0.1;
+    }
+  }
+
+  function onMouseWheel(event) {
+    event.preventDefault();
+    zoom(event.wheelDeltaY * settings.cameraDistanceAnimationWheelSpeed);
+  }
+
+  function onMouseDown(event){
+    event.preventDefault(event);
+    document.body.addEventListener('mousemove', onMouseMove, false);
+    document.body.addEventListener('mouseup', onMouseUp, false);
+    document.body.addEventListener('mouseout', onMouseOut, false);
+
+    mousePositionOnDown.x = -event.clientX; // for intuitive mouse interaction
+    mousePositionOnDown.y = event.clientY;
+
+    targetOnDown.x = target.x;
+    targetOnDown.y = target.y;
+  }
+
+  function onMouseMove(event){
+    event.preventDefault(event);
+
+    mousePositiononMouseMove.x = -event.clientX; // for intuitive mouse interaction
+    mousePositiononMouseMove.y = event.clientY;
+
+    let cameraDistanceAnimationDamp = settings.cameraDistance * settings.cameraDistanceAnimationDampRatio; // change damp value with cameraDistance (closer to the globe, slower animation)
+    target.x = targetOnDown.x + (mousePositiononMouseMove.x - mousePositionOnDown.x) * cameraDistanceAnimationDamp;
+    target.y = targetOnDown.y + (mousePositiononMouseMove.y - mousePositionOnDown.y) * cameraDistanceAnimationDamp;
+
+    target.y = target.y > PI_HALF ? PI_HALF : target.y; // rotation limitation
+    target.y = target.y < - PI_HALF ? - PI_HALF : target.y; // rotation limitation
+  }
+
+  function onMouseUp(event) {
+    document.body.removeEventListener('mousemove', onMouseMove, false);
+    document.body.removeEventListener('mouseup', onMouseUp, false);
+    document.body.removeEventListener('mouseout', onMouseOut, false);
+  }
+
+  function onMouseOut(event) {
+    document.body.removeEventListener('mousemove', onMouseMove, false);
+    document.body.removeEventListener('mouseup', onMouseUp, false);
+    document.body.removeEventListener('mouseout', onMouseOut, false);
+  }
+
+  function zoom(delta) {
+    settings.cameraDistanceAnimationEnd -= delta;
+    settings.cameraDistanceAnimationEnd = settings.cameraDistanceAnimationEnd > settings.cameraDistanceMax ? settings.cameraDistanceMax : settings.cameraDistanceAnimationEnd;
+    settings.cameraDistanceAnimationEnd = settings.cameraDistanceAnimationEnd < settings.cameraDistanceMin ? settings.cameraDistanceMin : settings.cameraDistanceAnimationEnd;
+  }
+
+
+  window.onload = function(){
+    console.log("window is on load.");
+  }
+
+  </script>
+
+</body>
+</html>
