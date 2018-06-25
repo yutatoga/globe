@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>globe</title>
+  <style>
+  body {
+    margin: 0;
+    overflow: hidden;
+  }
+  #contents {
+    background-color:#87CEFA;
+  }
+  #container{
+    width: 400px;
+    height: 500px;
+    background-color: #ff0000;
+  }
+  </style>
+</head>
+<body>
+
+  <div id="container"></div>
+  <div id="contents">
+    <h1>CSS3Renderer Test</h1>
+    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+    <a href="https://www.google.com/">Google</a>
+  </div>
+
+  <script type="text/javascript" src="js/three.js"></script>
+  <script type="text/javascript" src="js/TrackballControls.js"></script>
+  <script type="text/javascript" src="js/CSS3DRenderer.js"></script>
+  <script type="text/javascript" src="js/jquery.min.js"></script>
+  <script>
+
+  var scene, camera, css3drenderer;
+  var controls;
+  var object;
+
+  init();
+  animate();
+
+  function init(){
+    // scene
+    scene = new THREE.Scene();
+
+    // camera
+    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 5000);
+    camera.position.z = 1000;
+
+    // renderer
+    css3drenderer = new THREE.CSS3DRenderer();
+    css3drenderer.setSize(window.innerWidth/2.0, window.innerHeight/2.0);
+    document.getElementById('container').appendChild(css3drenderer.domElement);
+
+    css3drenderer.domElement.setAttribute('id', 'css3drendererDomElement');
+    css3drenderer.domElement.style.position = 'absolute';
+    css3drenderer.domElement.style.backgroundColor = '#00ff00';
+    console.log("css3drenderer.domElement", css3drenderer.domElement);
+    console.log("css3drenderer.domElement.style", css3drenderer.domElement.style);
+
+    // css 3d object
+    object = new THREE.CSS3DObject(document.getElementById('contents'));
+    object.position.set(0, 0, 0);
+    scene.add(object);
+
+    // TrackballControls
+    controls = new THREE.TrackballControls(camera, css3drenderer.domElement);
+  }
+
+  function animate() {
+    requestAnimationFrame(animate);
+    controls.update();
+
+    scene.rotation.y += 0.001;
+    css3drenderer.render(scene, camera);
+  }
+
+  $(document).ready(function() {
+    console.log("ready");
+    
+    $(document).mousedown(function(event){console.log("document: mousedown");});
+    $("#container").mousedown(function(event){console.log("#container: mousedown");});
+    $("#contents").mousedown(function(event){console.log("#contents: mousedown");});
+    $("#css3drendererDomElement").mousedown(function(event){console.log("#css3drendererDomElement: mousedown");});
+
+  });
+
+  </script>
+</body>
+</html>
