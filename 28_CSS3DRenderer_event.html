@@ -7,14 +7,16 @@
   body {
     margin: 0;
     overflow: hidden;
+    background-color: pink;
   }
+
   #contents {
     background-color:#87CEFA;
   }
   #container{
     width: 400px;
     height: 500px;
-    background-color: #ff0000;
+    background-color: red;
   }
   </style>
 </head>
@@ -56,8 +58,6 @@
     css3drenderer.domElement.setAttribute('id', 'css3drendererDomElement');
     css3drenderer.domElement.style.position = 'absolute';
     css3drenderer.domElement.style.backgroundColor = '#00ff00';
-    console.log("css3drenderer.domElement", css3drenderer.domElement);
-    console.log("css3drenderer.domElement.style", css3drenderer.domElement.style);
 
     // css 3d object
     object = new THREE.CSS3DObject(document.getElementById('contents'));
@@ -78,11 +78,12 @@
 
   $(document).ready(function() {
     console.log("ready");
-    
-    $(document).mousedown(function(event){console.log("document: mousedown");});
-    $("#container").mousedown(function(event){console.log("#container: mousedown");});
-    $("#contents").mousedown(function(event){console.log("#contents: mousedown");});
-    $("#css3drendererDomElement").mousedown(function(event){console.log("#css3drendererDomElement: mousedown");});
+
+    $(document).mousedown(function(event){console.log("mousedown: document");});
+    $("body").mousedown(function(event){console.log("mousedown: body");});
+    $("#container").mousedown(function(event){console.log("mousedown: #container");});
+    $("#contents").mousedown(function(event){console.log("mousedown: #contents");});
+    $("#css3drendererDomElement").mousedown(function(event){console.log("mousedown: #css3drendererDomElement");});
 
   });
 
