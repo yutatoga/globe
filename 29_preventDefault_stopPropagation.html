@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>globe</title>
+  <style>
+
+  body {
+    margin: 0;
+    overflow: hidden;
+    background-color: lightgreen;
+  }
+
+  #pink{
+    position: absolute;
+    background-color: pink;
+    width: 700px;
+    height: 500px;
+  }
+
+  #orange{
+    background-color: orange;
+    width: 600px;
+    height: 300px;
+  }
+
+  #lightblue{
+    width: 500px;
+    height: 200px;
+    background-color: lightblue;
+  }
+
+  #yellow{
+    width: 400px;
+    height: 100px;
+    background-color: yellow;
+  }
+
+  </style>
+</head>
+<body>
+
+  <div id="pink">
+    <p>I am #pink.</p>
+    <a href="https://www.google.com/" target="_blank">This link is working.</a>
+    <div id="orange">
+      <p>I am #orange.</p>
+      <div id="lightblue">
+        <p>I am #lightblue</p>
+        <div id="yellow">
+          <p>I am #yellow</p>
+          <a id = "preventDefault" href="https://www.google.com/ ">This link is not working.</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="text/javascript" src="js/jquery.min.js"></script>
+  <script>
+
+  $(document).ready(function() {
+
+    $(document).click(function(event){
+      console.log("click: document");
+    });
+
+    $("#pink").click(function(event){
+      console.log("click: #pink");
+    });
+
+    $("#orange").click(function(event){
+      console.log("click: #orange");
+      console.log("stopPropagation");
+      event.stopPropagation();
+    });
+
+    $("#lightblue").click(function(event){
+      console.log("click: #lightblue)")
+    });
+
+    $("#yellow").click(function(event){
+      console.log("click: #yellow)")
+    });
+
+    $("#preventDefault").click(function(event){
+      console.log("This link is not working because of preventDefault");
+      event.preventDefault();
+    });
+
+  });
+
+  </script>
+</body>
+</html>
