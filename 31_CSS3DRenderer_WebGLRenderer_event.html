@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>globe</title>
+  <style>
+  body {
+    margin: 0;
+    overflow: hidden;
+    background-color: pink;
+  }
+
+  #contents {
+    background-color:#87CEFA;
+  }
+  #container{
+    width: 400px;
+    height: 500px;
+    background-color: red;
+  }
+  canvas{
+    position: absolute;
+    top: 0;
+    left: 0;
+  }
+
+  </style>
+</head>
+<body>
+
+  <div id="container"></div>
+  <div id="contents">
+    <h1>CSS3Renderer Test</h1>
+    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+    <a href="https://www.google.com/">Google</a>
+  </div>
+
+  <script type="text/javascript" src="js/three.js"></script>
+  <script type="text/javascript" src="js/CSS3DRenderer.js"></script>
+  <script type="text/javascript" src="js/jquery.min.js"></script>
+  <script>
+
+  var scene, camera, rendererCSS3D;
+  var controls;
+  var object;
+
+  init();
+  animate();
+
+  function init(){
+    // scene
+    scene = new THREE.Scene();
+
+    // camera
+    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 5000);
+    camera.position.z = 1000;
+
+    // CSS3DRenderer
+    rendererCSS3D = new THREE.CSS3DRenderer();
+    rendererCSS3D.setSize(window.innerWidth/2.0, window.innerHeight/2.0);
+    document.getElementById('container').appendChild(rendererCSS3D.domElement);
+    rendererCSS3D.domElement.setAttribute('id', 'rendererCSS3DDomElement');
+    rendererCSS3D.domElement.style.position = 'absolute';
+    rendererCSS3D.domElement.style.backgroundColor = '#00ff00';
+    object = new THREE.CSS3DObject(document.getElementById('contents'));
+    object.position.set(0, 0, 0);
+    scene.add(object);
+
+    // WebGLRenderer
+    rendererWebGL = new THREE.WebGLRenderer();
+    rendererWebGL.setSize(100, 100);
+    document.body.appendChild(rendererWebGL.domElement);
+    var geometry = new THREE.SphereGeometry(50, 10, 10);
+    var material = new THREE.MeshBasicMaterial( {
+      color: 0xff0000,
+      wireframe: true
+    } );
+    sphere = new THREE.Mesh(geometry, material);
+    scene.add(sphere);
+  }
+
+  function animate() {
+    requestAnimationFrame(animate);
+
+    scene.rotation.y += 0.001;
+    rendererCSS3D.render(scene, camera);
+  }
+
+  $(document).ready(function() {
+    console.log("ready");
+
+    $(document).mousedown(function(event){console.log("mousedown: document");});
+    $("body").mousedown(function(event){console.log("mousedown: body");});
+    $("#container").mousedown(function(event){console.log("mousedown: #container");});
+    $("#contents").mousedown(function(event){console.log("mousedown: #contents");});
+    $("#rendererCSS3DDomElement").mousedown(function(event){console.log("mousedown: #rendererCSS3DDomElement");});
+
+  });
+
+  </script>
+</body>
+</html>
