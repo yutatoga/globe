@@ -30,6 +30,7 @@
   </div>
 
   <script type="text/javascript" src="js/three.js"></script>
+  <script type="text/javascript" src="js/TrackballControls.js"></script>
   <script type="text/javascript" src="js/CSS3DRenderer.js"></script>
   <script type="text/javascript" src="js/jquery.min.js"></script>
   <script>
@@ -63,11 +64,14 @@
     object.position.set(0, 0, 0);
     scene.add(object);
 
+    // TrackballControls
+    controls = new THREE.TrackballControls(camera, css3drenderer.domElement);
   }
 
   function animate() {
     requestAnimationFrame(animate);
-    
+    controls.update();
+
     scene.rotation.y += 0.001;
     css3drenderer.render(scene, camera);
   }
