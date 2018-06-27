@@ -28,7 +28,9 @@
 </head>
 <body>
 
-  <div id="container"></div>
+  <div id="containerCSS3DRenderer"></div>
+  <div id="containerWebGLRenderer"></div>
+
   <div id="contents">
     <h1>CSS3Renderer Test</h1>
     <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
@@ -58,7 +60,7 @@
     // CSS3DRenderer
     rendererCSS3D = new THREE.CSS3DRenderer();
     rendererCSS3D.setSize(window.innerWidth/2.0, window.innerHeight/2.0);
-    document.getElementById('container').appendChild(rendererCSS3D.domElement);
+    document.getElementById('containerCSS3DRenderer').appendChild(rendererCSS3D.domElement);
     rendererCSS3D.domElement.setAttribute('id', 'rendererCSS3DDomElement');
     rendererCSS3D.domElement.style.position = 'absolute';
     rendererCSS3D.domElement.style.backgroundColor = '#00ff00';
@@ -69,7 +71,7 @@
     // WebGLRenderer
     rendererWebGL = new THREE.WebGLRenderer();
     rendererWebGL.setSize(100, 100);
-    document.body.appendChild(rendererWebGL.domElement);
+    document.getElementById('containerWebGLRenderer').appendChild(rendererWebGL.domElement);
     var geometry = new THREE.SphereGeometry(50, 10, 10);
     var material = new THREE.MeshBasicMaterial( {
       color: 0xff0000,
@@ -91,9 +93,13 @@
 
     $(document).mousedown(function(event){console.log("mousedown: document");});
     $("body").mousedown(function(event){console.log("mousedown: body");});
-    $("#container").mousedown(function(event){console.log("mousedown: #container");});
+    $("#containerCSS3DRenderer").mousedown(function(event){console.log("mousedown: #containerCSS3DRenderer");});
+    $("#containerWebGLRenderer").mousedown(function(event){console.log("mousedown: #containerWebGLRenderer");});
     $("#contents").mousedown(function(event){console.log("mousedown: #contents");});
     $("#rendererCSS3DDomElement").mousedown(function(event){console.log("mousedown: #rendererCSS3DDomElement");});
+    $("canvas").mousedown(function(){console.log("mousedown: canvas");});
+
+
 
   });
 
