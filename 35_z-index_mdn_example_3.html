@@ -1,0 +1,125 @@
+<!-- Learn about this code on MDN: https://developer.mozilla.org/ja/docs/Web/Guide/CSS/Understanding_z_index/Stacking_context_example_3 -->
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+  div { font: 12px Arial; }
+
+  span.bold { font-weight: bold; }
+
+  div.lev1 {
+    width: 250px;
+    height: 70px;
+    position: relative;
+    border: 2px outset #669966;
+    background-color: #ccffcc;
+    padding-left: 5px;
+  }
+
+  #container1 {
+    z-index: 1;
+    position: absolute;
+    top: 30px;
+    left: 75px;
+  }
+
+  div.lev2 {
+    opacity: 0.9;
+    width: 200px;
+    height: 60px;
+    position: relative;
+    border: 2px outset #990000;
+    background-color: #ffdddd;
+    padding-left: 5px;
+  }
+
+  #container2 {
+    z-index: 1;
+    position: absolute;
+    top: 20px;
+    left: 110px;
+  }
+
+  div.lev3 {
+    z-index: 10;
+    width: 100px;
+    position: relative;
+    border: 2px outset #000099;
+    background-color: #ddddff;
+    padding-left: 5px;
+  }
+
+  </style>
+</head>
+
+<body>
+
+  <br />
+
+  <div class="lev1">
+    <span class="bold">LEVEL #1</span>
+
+    <div id="container1">
+
+      <div class="lev2">
+        <br /><span class="bold">LEVEL #2</span>
+        <br />z-index: 1;
+
+        <div id="container2">
+
+          <div class="lev3"><span class="bold">LEVEL #3</span></div>
+          <div class="lev3"><span class="bold">LEVEL #3</span></div>
+          <div class="lev3"><span class="bold">LEVEL #3</span></div>
+          <div class="lev3"><span class="bold">LEVEL #3</span></div>
+          <div class="lev3"><span class="bold">LEVEL #3</span></div>
+          <div class="lev3"><span class="bold">LEVEL #3</span></div>
+          <div class="lev3"><span class="bold">LEVEL #3</span></div>
+          <div class="lev3"><span class="bold">LEVEL #3</span></div>
+          <div class="lev3"><span class="bold">LEVEL #3</span></div>
+          <div class="lev3"><span class="bold">LEVEL #3</span></div>
+          <div class="lev3"><span class="bold">LEVEL #3</span></div>
+
+        </div>
+
+      </div>
+
+      <div class="lev2">
+        <br /><span class="bold">LEVEL #2</span>
+        <br />z-index: 1;
+      </div>
+
+    </div>
+  </div>
+
+  <div class="lev1">
+    <span class="bold">LEVEL #1</span>
+  </div>
+
+  <div class="lev1">
+    <span class="bold">LEVEL #1</span>
+  </div>
+
+  <div class="lev1">
+    <span class="bold">LEVEL #1</span>
+  </div>
+
+
+  <script type="text/javascript" src="js/jquery.min.js"></script>
+  <script>
+
+  $(document).ready(function() {
+    console.log("ready");
+
+    $(document).mousedown(function(event){console.log("mousedown: document\n\n");});
+    $("body").mousedown(function(event){console.log("mousedown: body");});
+
+    $(".lev1").mousedown(function(){console.log("mousedown: .lev1");});
+    $(".lev2").mousedown(function(){console.log("mousedown: .lev2");});
+    $(".lev3").mousedown(function(){console.log("mousedown: .lev3");});
+
+  });
+
+  </script>
+
+</body>
+</html>
