@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>globe</title>
+  <style>
+  body {
+    margin: 0;
+    overflow: hidden;
+    background-color: lavender;
+  }
+
+  /* RGB */
+  .red {
+    opacity: 0.9;
+    background-color: red;
+    width: 100px;
+    height: 300px;
+  }
+  .green {
+    opacity: 0.9;
+    background-color: green;
+    width: 200px;
+    height: 200px;
+  }
+  .blue {
+    opacity: 0.9;
+    background-color: blue;
+    width: 300px;
+    height: 100px;
+  }
+
+  /* CMY */
+  .cyan {
+    opacity: 0.9;
+    background-color: cyan;
+    width: 100px;
+    height: 300px;
+  }
+  .magenta {
+    opacity: 0.9;
+    background-color: magenta;
+    width: 200px;
+    height: 200px;
+  }
+  .yellow {
+    opacity: 0.9;
+    background-color: yellow;
+    width: 300px;
+    height: 100px;
+  }
+
+  /* light RGB */
+  .pink {
+    border: 1px dashed #990000;
+    text-align: center;
+    opacity: 1;
+    background-color: pink;
+    width: 100px;
+    height: 300px;
+  }
+  .lightgreen {
+    border: 1px dashed #990000;
+    text-align: center;
+    opacity: 1;
+    background-color: lightgreen;
+    width: 200px;
+    height: 200px;
+    z-index: -1;
+  }
+
+  .originTop0Left350 {
+    position: absolute;
+    top: 0;
+    left: 350px;
+  }
+
+  .originTop0Left700 {
+    position: absolute;
+    top: 0;
+    left: 700px;
+  }
+
+  .originTop0Left0{
+    position: absolute;
+    top: 0;
+    left: 0;
+  }
+
+  </style>
+</head>
+<body>
+
+  <div class="red">
+    <p>red</p>
+    <div class="green">
+      <p>green</p>
+      <div class="blue">
+        <p>blue</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="cyan originTop0Left350">
+    <br><br><p>cyan</p>
+    <div class="magenta originTop0Left0">
+      <br><p>magenta</p>
+      <div class="yellow originTop0Left0">
+        <p>yellow</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="pink originTop0Left700">
+    <p>pink</p>
+    <div class="lightgreen originTop0Left0">
+      <br><p>lightgreen</p>
+    </div>
+  </div>
+
+
+
+  <script type="text/javascript" src="js/jquery.min.js"></script>
+  <script>
+
+  $(document).ready(function() {
+    console.log("ready");
+
+    $(document).mousedown(function(event){console.log("mousedown: document\n\n");});
+    $("body").mousedown(function(event){console.log("mousedown: body");});
+
+    $(".red").mousedown(function(event){console.log("mousedown: .red");});
+    $(".green").mousedown(function(){console.log("mousedown: .green");});
+    $(".blue").mousedown(function(){console.log("mousedown: .blue");});
+
+    $(".cyan").mousedown(function(event){console.log("mousedown: .cyan");});
+    $(".magenta").mousedown(function(){console.log("mousedown: .magenta");});
+    $(".yellow").mousedown(function(){console.log("mousedown: .yellow");});
+
+    $(".pink").mousedown(function(event){console.log("mousedown: .pink");});
+    $(".lightgreen").mousedown(function(){console.log("mousedown: .lightgreen");});
+
+  });
+
+  </script>
+</body>
+</html>
