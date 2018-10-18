@@ -1,0 +1,75 @@
+<!-- Learn about this code on MDN: https://developer.mozilla.org/ja/docs/Web/Guide/CSS/Understanding_z_index/Stacking_context_example_1 -->
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+  div { font: 12px Arial; }
+
+  span.bold { font-weight: bold;}
+
+  #div1{
+    border: 1px dashed #669966;
+    background-color: #ccffcc;
+    height: 50px;
+  }
+  #div2 {
+    opacity: 0.8;
+    border: 1px dashed #990000;
+    background-color: #ffdddd;
+    height: 50px;
+    margin-top: 15px;
+  }
+
+  .test {
+    background-color: #ffff00;
+    height: 50px;
+    margin-top: 15px;
+  }
+
+</style>
+
+</head>
+
+<body>
+
+  <div id="div1" class="test">DIV #1</div>
+  <div id="div2" class="test">DIV #2</div>
+
+  <script type='text/javascript' src='js/jquery.min.js'></script>
+  <script>
+
+  $(document).ready(function() {
+    console.log('ready');
+
+    $(document).mousedown(function(event){console.log('mousedown: document\n\n');});
+    $('body').mousedown(function(event){console.log('mousedown: body');});
+    $('#div1').mousedown(function(){console.log('mousedown: #div1');});
+    $('#div2').mousedown(function(){console.log('mousedown: #div2');});
+
+
+    let elementListenBefore = document.createElement('div');
+    elementListenBefore.className = 'test';
+    elementListenBefore.textContent = 'elementListenBefore (mousedown does work for this element becasue I am added BEFORE mousedown was set)';
+    document.body.appendChild(elementListenBefore);
+
+    $('.test').mousedown(function(){console.log('mousedown: .test');});
+
+    let elementListenNo = document.createElement('div');
+    elementListenNo.className = 'test';
+    elementListenNo.textContent = 'elementListenNo (mousedown does NOT work for this element becasue I am added AFTER mousedown was set)';
+    document.body.appendChild(elementListenNo);
+
+    let elementListenAfter = document.createElement('div');
+    elementListenAfter.className = 'test';
+    elementListenAfter.textContent = 'elementListenAfter (mousedown does work for this element becasue mousedown was added for this element after this elemet was created.)';
+    elementListenAfter.onmousedown = function (){console.log('mousedown: elementListenAfter');};
+    document.body.appendChild(elementListenAfter);
+
+
+
+  });
+
+  </script>
+
+</body>
+</html>
